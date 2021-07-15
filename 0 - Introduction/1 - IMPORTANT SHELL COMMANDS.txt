@@ -23,3 +23,6 @@ db.dropDatabase()
 5. To drop a collection inside a database, we use the follwing command lines:
 use <database name>
 db.<collection name>.drop()
+
+6. To import a group of data stored inside a JSON file, we use the following command lines:
+mongoimport <file-name.json> -d <database name> -c <collection name> --jsonArray --drop
