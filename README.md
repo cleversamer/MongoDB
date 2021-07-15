@@ -1,2 +1,2 @@
-# MongoDB-Full-Reference
-Short &amp; Clear MongoDB Documentation written by me.
+# Short & Clear MongoDB Documentation
+Written by me.
