@@ -1,0 +1,18 @@
+* What does CRUD mean?
+CRUD stands for Creare, Read, Upadate, and Delete.
+
+* What are the uses of CRUD operations?
+We use CRUD operations to interact with the database and perform some operations and adjustments on the data.
+
+* What do CRUD operations actually do?
+1. Create:
+It is about creating a new document/object and add it to a collection inside the database.
+
+2. Read:
+It is about reading/fetching data from the database.
+
+3. Update:
+It is about updating the data inside the database.
+
+4. Delete:
+It is about deleting some data inside the database.
