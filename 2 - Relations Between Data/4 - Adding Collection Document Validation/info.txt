@@ -1,9 +1,0 @@
-HINT: the code in the validation.js is used in the shell (terminal).
-HINT: The validation.js module includes the syntax we use to create a collection in the database with a validation schema.
-
-* Why is this useful?
-When we create a collection with a validation schema, we define the schema of the document that the collection accepts it.
-In the validation.js module, the code is to create a collection called posts and it has the following properties:
-title, text, creator, and comments.
-These properties are all required when we insert a new document to the posts collection, and each property has a specific data type.
-We can use this validation to enforce the user to enter the data we want, or any other reason.
