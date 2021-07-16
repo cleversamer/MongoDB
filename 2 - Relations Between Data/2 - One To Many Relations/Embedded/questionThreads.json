@@ -1,0 +1,26 @@
+[
+    {
+        "creator": "Person 1",
+        "question": "How does that work?",
+        "answers": [
+            {
+                "text": "Liked that!"
+            },
+            {
+                "text": "Thanks!"
+            }
+        ]
+    },
+    {
+        "creator": "Person 2",
+        "question": "How are you all?",
+        "answers": [
+            {
+                "text": "I'm fine, and you?"
+            },
+            {
+                "text": "I'm ok. Thank you!"
+            }
+        ]
+    }
+]

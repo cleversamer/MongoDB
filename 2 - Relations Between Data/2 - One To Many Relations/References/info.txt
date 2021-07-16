@@ -1,0 +1,20 @@
+In this example, we have cities, and citizens. Each city has citizens, but we cannot store each citizen inside their city document, and
+that is because of the risk of 16MB limit, and each city may have millions of citizens. Also we cannot store the "_id" of each citizen inside
+their city document.
+The perfect solution in this case is to store the cityId/city name inside each citizen document, so we may have millions of citizens, and
+tens of cities, so that is the perfect solution.
+
+1. Let's import the data from the JSON files:
+mongoimport cities.json -d country -c cities --jsonArray --drop
+mongoimport citizens.json -d country -c citizens --jsonArray --drop
+
+2. Preparing to interact with new database:
+mongo
+use country
+
+3. Let's find the city that the first citizen in the database belongs to:
+var cityId = db.citizens.findOne().cityId
+db.cities.findOne({name: cityId}) 
+
+4. Let's delete the database, because we don't need it any more:
+db.dropDatabase()
