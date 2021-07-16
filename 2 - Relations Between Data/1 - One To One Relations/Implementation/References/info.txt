@@ -1,0 +1,11 @@
+1. Let's import the data in the JSON files:
+mongoimport patients.json -d hospital -c patients --jsonArray --drop
+mongoimport diseaseSummaries.json -d hospital -c diseaseSummaries --jsonArray --drop
+
+2. Preparing to interact with new database:
+mongo
+use hospital
+
+3. Let's find the disease summary for the first patient:
+var dsid = db.patients.findOne().diseaseSummary
+db.diseaseSummaries.findOne({"_id": dsid})

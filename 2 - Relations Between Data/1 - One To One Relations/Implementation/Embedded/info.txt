@@ -1,0 +1,9 @@
+1. Let's import the data in the JSON file:
+mongoimport patients.json -d hospital -c patients --jsonArray --drop
+
+2. Preparing to interact with new database:
+mongo
+use hospital
+
+3. Let's search for a patient has cold on their disease summary:
+db.patients.findOne({"diseaseSummary.diseases": "Cold"})
