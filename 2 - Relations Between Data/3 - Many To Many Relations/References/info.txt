@@ -1,0 +1,27 @@
+In this example, we have book and author, the relation between them is many-to-many, because an author may be an author for multiple books,
+and a book can be written by multiple authors.
+In this example, we are gonna use the References pattern, and we cannot use the Embedded Documents pattern for some reasons like if the author
+gets married, then the their name will changed, and also their age wants to be updated from time to time. If we used the Embedded Documents
+pattern, then we will have a lot and a lot of write/update operation to the database.
+
+1. Let's import the data from the JSON files:
+mongoimport books.json -d librarry -c books --jsonArray --drop
+mongoimport authors.json -d librarry -c authors --jsonArray --drop
+
+2. Preparing to interact with new database:
+mongo
+use librarry
+
+Now we have two collections for books and authors. The documents in the books collections miss the authors field.
+
+3. Let's add the authors to the books:
+db.books.updateOne({name: "Book 1"}, {$set: {authors: [authId]}})
+
+var authId = db.authors.findOne({name: "Author 2"}, {_id: 1})
+db.books.updateOne({name: "Book 2"}, {$set: {authors: [authId]}})
+
+4. Let's see the books in the database:
+db.books.find().pretty()
+
+5. Let's delete the database, because we don't need it any more:
+db.dropDatabase()

@@ -1,0 +1,23 @@
+[
+    {
+        "name": "Author 1",
+        "age": 22,
+        "address": {
+            "street": "Main"
+        }
+    },
+    {
+        "name": "Author 2",
+        "age": 32,
+        "address": {
+            "street": "Tree Street"
+        }
+    },
+    {
+        "name": "Author 3",
+        "age": 21,
+        "address": {
+            "street": "32nd Street"
+        }
+    }
+]

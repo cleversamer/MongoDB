@@ -1,0 +1,33 @@
+In this example, we have customer, product, and orders. The relation betwenn customer and product is many-to-many, because a customer can
+order multiple products, and a product can be ordered by multiple customers.
+
+The products should have their own collection on the database, and the customers too. But when a customer make some orders, how will these
+orders should be stored in the database? They will be stored inside the customer document that made these orders, but what is the pattern
+should we store them inside the customer document?
+ANSWER: It depends on the application we have and its requirements.
+
+I'm gonna use the Embedded Documents pattern.
+
+1. Let's import the data from the JSON files:
+mongoimport customers.json -d shop -c customers --jsonArray --drop
+mongoimport products.json -d shop -c products --jsonArray --drop
+
+2. Preparing to interact with new database:
+mongo
+use shop
+
+Now we have a database with two collections for customers and products, let's add an order to the first customer in the database. I'm gonna use
+a new operator which is $set, don't worry about it, we will take a look soon.
+
+3. Let's take a look at the first customer in the customers collection:
+db.customers.findOne()
+
+4. Let's add an order to the first customer in the database:
+var product = db.products.findOne({}, {_id: 0})
+db.customers.updateOne({}, {$set: {orders: [product]}})
+
+3. Let's take a look at the first customer in the customers collection after update:
+db.customers.findOne()
+
+4. Let's delete the database, because we don't need it any more:
+db.dropDatabase()
