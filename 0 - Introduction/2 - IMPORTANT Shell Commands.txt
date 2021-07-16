@@ -1,0 +1,28 @@
+We have MongoDB installed on our computer, and now we are gonna learn how to use the shell to interact with MongoDB.
+These are the basic command lines, and we must be familiar with them.
+
+1. To view the name of the databases we have created, we use the following command:
+show dbs
+
+2. To create a new database, we use the following command:
+use <database name>
+
+3. To add a new collection to a database, we use the following command lines:
+   Hint: you must insert one or many documents to the collection you make,
+         and to do this, we use either insertOne() method or insertMany(). 
+use <database name>
+db.<collection name>.insertOne({})
+
+3. To switch to an existing database to interact with it, we use the following command line:
+use <database name>
+
+4. To drop a database, we use the follwing command lines:
+use <database name>
+db.dropDatabase()
+
+5. To drop a collection inside a database, we use the follwing command lines:
+use <database name>
+db.<collection name>.drop()
+
+6. To import a group of data stored inside a JSON file, we use the following command lines:
+mongoimport <file-name.json> -d <database name> -c <collection name> --jsonArray --drop
