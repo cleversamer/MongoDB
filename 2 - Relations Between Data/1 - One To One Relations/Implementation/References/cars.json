@@ -1,0 +1,10 @@
+[
+    {
+        "_id": "car-id-1",
+        "model": "BMW"
+    },
+    {
+        "_id": "car-id-2",
+        "model": "Mercedes"
+    }
+]

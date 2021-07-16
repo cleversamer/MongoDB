@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Patient 1",
+        "age": 26,
+        "diseaseSummary": {
+            "diseases": [
+                "Cold",
+                "Broken leg"
+            ]
+        }
+    },
+    {
+        "name": "Patient 2",
+        "age": 32,
+        "diseaseSummary": {
+            "diseases": [
+                "Sore Throat",
+                "Backache"
+            ]
+        }
+    }
+]

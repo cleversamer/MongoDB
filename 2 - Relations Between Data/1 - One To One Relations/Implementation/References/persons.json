@@ -1,0 +1,12 @@
+[
+    {
+        "name": "Person 1",
+        "age": 26,
+        "car": "car-id-1"
+    },
+    {
+        "name": "Person 2",
+        "age": 32,
+        "car": "car-id-2"
+    }
+]
