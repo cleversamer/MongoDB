@@ -1,0 +1,20 @@
+In the example of person and car, we used the references pattern to store the data, because in real world project, if we implement this,
+the car document may impact the risk of 16MB limit for each document, but that is not inside our implementation, it it in real world.
+The car has many properties, information, and more data that needs some capacity, and to reduce the danger of capacity (16MB limit), we 
+used the pattern of references, so each person is stroed inside the persons collections, and it has a car, this car is exist in the cars
+collection, and the person just has the "_id" of their car in the cars collection, so we can find it, and we have to make an extra query.
+
+1. Let's import the data from the JSON files:
+mongoimport cars.json -d carsCompany -c cars --jsonArray --drop
+mongoimport persons.json -d carsCompany -c persons --jsonArray --drop
+
+2. Preparing to interact with new database:
+mongo
+use carsCompany
+
+3. Let's find the disease summary for the first patient:
+var carId = db.persons.findOne().car
+db.cars.findOne({"_id": carId})
+
+4. Let's delete the database, because we don't need it any more:
+db.dropDatabase()
