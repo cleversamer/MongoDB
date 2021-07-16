@@ -1,0 +1,16 @@
+In our example, the relationship between patient and summary is one-to-one, because one patient has one disease summary
+and disease summary belongs to one patient.
+
+To make a relationship between two documents, there are two patterns to do that:
+1. Embedded documents
+2. Using references
+
+* Embedded documents:
+In this pattern, we add the disease summary as a field to the patient document, so the patient document includes the disease
+summary document.
+
+* Using references:
+In this pattern, we have two collections in our database (patients, and diseaseSummaries), each patient in the patients collection
+has disease summary, but this disease summary is not stored inside it, the disease summary is stored in another collection, and each
+patient document has the "_id" of its patient summary which is stored inside another collection.
+
