@@ -1,0 +1,15 @@
+* Let's create a new database called "librarry" to start work, use the following command lines:
+mongo
+use librarry
+db.customers.insertOne({name: "Customer 1", favBooks: ["id1", "id2"]})
+db.books.insertOne({_id: "id1", name: "Book 1"})
+
+* Now we have a new database called "librarry" and two collection for customers and books.
+
+* Let's use the $lookup and see the results:
+db.customers.aggregate([{$lookup: {from: "books", localField: "favBooks", foreignField: "_id", as: "favBookData"}}])
+
+After writing the previous command line, we are gonna see the customer document with a new field called "favBookData", and this field is an
+array with all the references in the customer document.
+
+HINT: after lookup, the original customer document will not be changed, the lookup just give us the same document with its reference objects.
