@@ -9,10 +9,6 @@
 8. $nin: Matches none of the values specified in an array.
 
 * How can we use them?
-Let's import the employees data and getting ready with the new database:
-mongoimport employees.json -d company -c employees --jsonArray --drop
-mongo
-use company
 
 1. Using $eq:
 Let's find each employee with a salary 3100:
