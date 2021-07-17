@@ -11,7 +11,7 @@
     },
     {
         "name": "Employee 3",
-        "age": 22,
+        "age": "22",
         "salary": 2100
     },
     {
@@ -26,7 +26,7 @@
     },
     {
         "name": "Employee 6",
-        "age": 44,
+        "age": "44",
         "salary": 3400
     },
     {
