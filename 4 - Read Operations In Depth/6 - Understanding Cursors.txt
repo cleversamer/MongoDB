@@ -1,0 +1,113 @@
+If we have our client communicate with the MongoDB server, we potentially get back thousands or even millions of documents with find(),
+especially if we have no condition in there, but even with a condition, we easily have a condition that still meets like 1000 documents or 
+more depending on the scale of our app.
+
+So we get back all these results and that is very inefficient because all these results have to be fetched from the database, they have to be 
+sent over the wire and then they have to be loaded into memory in our client application.
+
+So these are three things that are not optimal because chances are we will not need all thousand documents at the same time and therefore,
+find() gives us a cursor.
+
+* What is a Cursor?
+A cursor is basically a pointer which has the query we wrote stored, and which can therefore quickly go to the database and say hey, give me 
+the next batch, give me the next batch, and indeed our work with batches of data then.
+We fetch the data one by one, so one document by a time and it really is only transferred over the wire when we request the next one.
+
+Now in the shell, we get 20 by default because the shell automatically basically takes the cursor and gives us the first 20 documents before
+we can get more. That cursor approach is great because it saves resources.
+
+* What is the idea behind the Cursor?
+If we have a query that meets 1000 documents, but let's say we have a website where we only display 10 items, let's say 10 products we fetched 
+at a time anyways, then there is no need to load all thousand results that matched our query right at the start.
+Instead we would only fetch the first 10, display them on the screen and then go ahead and fetch the next 10 when the user navigated to the 
+next page or anything like that. This is the idea behind a cursor.
+
+* Diving into Cursors:
+We have movies collection in the tv database that has 240 documents.
+
+Let's display the count of the documents of the movies collection:
+mongo
+use tv
+db.movies.find().count()
+
+When we query data by using find() method, find() method gives us a cursor.
+
+Let's query all the documents inside the movies collection:
+db.movies.find().pretty()
+
+As we see, we got only 20 documents while the collection has 240 documents, because in the shell by default, the cursor can grab 20 documents
+at most. If we want to query the next 20 documents (cursor), we type "it" in the shell, and we can repeat this process until we hit the 240
+documents in the collction.
+
+* How does count() method work?
+When we query data and use count() method, the count() method give us the number of how many documents will the cursor give us.
+In this case, it gives us 240 documents.
+
+* How can we sort the Cursor results?
+We can sort the cursor results by calling sort() method after the find() query method, and before pretty() if it does exist.
+
+Let's sort the movies by the average rating property:
+HINT: "1" in sort method means ascending order.
+HINT: "-1" in sort method means descending order.
+
+db.movies.find().sort({"rating.average": -1}).pretty()
+
+Or for more clear results, we want to display only the average rating of each result document:
+db.movies.find({}, {_id: 0, "rating.average": 1}).sort({"rating.average": -1}).pretty()
+
+* How can we skip Cursor results?
+Let's say in our client application, we implement some pagination, so people can view the results which are distributed across multiple pages
+because we don't want to have one page with 100 results, but we want to have 10 on every page.
+
+Now if the user switches to page number 2, we want to skip the first 10 results which would have been on page number 1, but now we want to 
+display the results for page number 2 and therefore, we can add a skip method here to skip results:
+
+db.movies.find({}, {_id: 0, "rating.average": 1}).sort({"rating.average": -1}).skip(10).pretty()
+
+
+So skipping does allow us to move through our data set, if we skip 100, then we can see the ratings are much lower, because we skipped all 
+the higher ones. Now skip is also used on a cursor as we can tell.
+
+* How can we limit Cursor results?
+The limit() method allows us to limit the amount of elements the cursor should retrieve at a time, and that also means the amount of documents 
+we can then move through with a cursor. We can limit this to 10 for example.
+
+db.movies.find({}, {_id: 0, "rating.average": 1}).sort({"rating.average": -1}).limit(10).pretty()
+
+* How can we use projection to shape our data?
+When using query operators like find() or findOne(), we receive the entire document/s as a result.
+So let's learn how can we receive a specific data when we query data like we have been doing so far with cursor results.
+
+Using the employees collection in the company database, we are gonna do some query operations.
+Let's find only the name of all employees that their salaries are higher than $4000:
+mongo
+use company
+db.employees.find({salary: {$gt: 4000}}, {salary: 1})
+
+Oops! we got them, but surprisingly we found the "_id" attached to each document, because it still displayed by default when we specify the
+fields we want to display, and to change the default behaviour, we have to set the "_id" property as non-visible in the result.
+
+db.employees.find({salary: {$gt: 4000}}, {_id: 0, salary: 1})
+
+As we see, we are no longer see the "_id" property attached to each document in the result.
+
+* How can we use projection in Arrays?
+Let's find all movies that have a genre of drama, and display onle the "_id" and "drama":
+mongo
+use tv
+db.movies.find({"genres": "Drama"}, {"genres.$": 1})
+
+Now these items we got have more genres than just drama.
+We only just fetch the drama. We only just output that, because that might be the only thing we are interested in.
+
+Let's find all movies that have a both drama and horror genres:
+db.movies.find({"genres": {$all: ["Drama", "Horror"]}}, {"genres.$": 1})
+
+What if we actually want to see only the thriller?
+db.movies.find({"genres": "Drama"}, {genres: {$elemMatch: {$eq: "Horror"}}})
+
+Let's filter for rating.average greater than 9 ,and then output that with p]rojection:
+db.movies.find({"rating.average": {$gt: 9}}, {genres: {$elemMatch: {$eq: "Horror"}}})
+
+We see only one element with a rating greater than 9, seems to have a genre of horror, because it's empty for the others, but now filter
+and this projection are totally unrelated, and that is important to understand here.
