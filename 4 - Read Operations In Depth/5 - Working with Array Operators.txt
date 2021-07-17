@@ -34,3 +34,18 @@ use test
 
 Let's find all items documents that have only two tags:
 db.inventory.find({tags: {$size: 2}}).pretty()
+
+* ADDITIONAL TO ARRAYS QUERY => Querying Embedded Fields & Arrays:
+1. Let's assume that we have a document in a collection called persons like this:
+{ "name": "Person", "age": 21, "address": { x: 2766, y: 4210 } }
+
+How can we query the "x" property inside "address" field?
+It is quite easy and similar to query a field, and using the following query:
+db.persons.findOne({"address.x": 2766})
+
+Also, we can use operators.
+
+2. Let's find all items in the inventory collection that have "appliance" tag:
+mongo
+use test
+db.inventory.find({"tags": "appliance"}).pretty()
