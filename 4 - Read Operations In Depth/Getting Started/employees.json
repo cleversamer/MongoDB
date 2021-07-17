@@ -1,7 +1,7 @@
 [
     {
         "name": "Employee 1",
-        "age": 31,
+        "age": null,
         "salary": 2900
     },
     {
