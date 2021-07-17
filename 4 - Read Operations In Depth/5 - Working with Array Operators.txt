@@ -2,6 +2,7 @@
 1. $all:       Matches arrays that contain all elements specified in the query.
 2. $elemMatch: Selects documents if element in the array field matches all the specified $elemMatch conditions.
 3. $size:      Selects documents if the array field is a specified size.
+4. $slice:     Specifies the number of elements in an array to return in the query result.
 
 * How can we use them?
 
@@ -35,7 +36,43 @@ use test
 Let's find all items documents that have only two tags:
 db.inventory.find({tags: {$size: 2}}).pretty()
 
-* ADDITIONAL TO ARRAYS QUERY => Querying Embedded Fields & Arrays:
+4. Using $slice:
+Syntax => {<query>, {<arrayField>: {$slice: <number>}}}
+Syntax => {<query>, {<arrayField>: {$slice: [<number to skip>, <number to return>]}}}
+mongo
+use tv
+
+First syntax specifies the number of elements to return in the <arrayField>.
+HINT: Specify a positive number n to return the first n elements.
+HINT: Specify a negative number n to return the last n elements.
+HINT: If the <number> is greater than the number of array elements, the query returns all array elements.
+
+Second syntax Specifies the number of elements to return in the <arrayField> after skipping the specified number of elements starting 
+from the first element.
+HINT: We must specify both elements.
+* For the <number to skip>:
+HINT: Specify a positive number n to skip n elements from the start of the array;
+      i.e. 0th index position. Based on a zero-based array index, 1 indicates the 
+      starting position of the 2nd element, etc. 
+      If n is greater than the number of array elements, the query returns an empty 
+      array for the <arrayField>.
+HINT: Specify a negative number n to skip backward n elements from the start of the array;
+      i.e. 0th index position Based on a zero-based array index (i.e. the first element is at index 0), 
+      -1 indicates the starting position of the last element, etc. 
+      If the absolute value of the negative number is greater than the number of array elements, 
+      the starting position is the start of the array.
+
+* For the <number to return>:
+HINT: We must specify a positive number n to return the next n elements, starting after skipping the specified number.
+
+Let's find all movies and for each document's genres, we display only the first two genres in the array:
+db.movies.find({}, {genres: {$slice: 2}, name: 1})
+
+Let's find all movies and for each document's genres, we display only the second and third genres in the array:
+db.movies.find({}, {genres: {$slice: [1, 2]}, name: 1})
+
+
+******************** ADDITIONAL TO ARRAYS QUERY => Querying Embedded Fields & Arrays ********************
 1. Let's assume that we have a document in a collection called persons like this:
 { "name": "Person", "age": 21, "address": { x: 2766, y: 4210 } }
 
