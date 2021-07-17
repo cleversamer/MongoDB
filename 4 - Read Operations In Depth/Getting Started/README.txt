@@ -1,3 +1,2 @@
 mongoimport employees.json -d company -c employees --jsonArray --drop
-mongo
-use company
+mongoimport sales.json -d shop -c sales --jsonArray --drop

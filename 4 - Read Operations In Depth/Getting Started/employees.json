@@ -46,6 +46,8 @@
     },
     {
         "name": "Employee 10",
-        "salary": 5800
+        "salary": [
+            5800
+        ]
     }
 ]
