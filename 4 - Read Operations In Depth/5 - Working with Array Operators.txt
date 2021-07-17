@@ -1,0 +1,36 @@
+* The list of Array Query Operators:
+1. $all:       Matches arrays that contain all elements specified in the query.
+2. $elemMatch: Selects documents if element in the array field matches all the specified $elemMatch conditions.
+3. $size:      Selects documents if the array field is a specified size.
+
+* How can we use them?
+
+1. Using $all:
+Syntax => {<field>: {$all: [<value1>, <value2> ..., <valueN>]}}
+mongo
+use test
+
+Let's find all items documents that have these tags [ "appliance", "school", "book" ]:
+db.inventory.find({tags: {$all: ["appliance", "school", "book"]}}).pretty()
+
+Let's find all items documents that their "qty" array has both of the following objects:
+db.inventory.find({qty: {$all: [{"$elemMatch": {size: "M", num: {$gt: 50}}}, {"$elemMatch": {num : 100, color: "green"}}]}}).pretty()
+
+2. Using $elemMatch:
+Syntax => {<field>: {$elemMatch: {<query1>, <query2>, ..., <queryN>}}}
+mongo
+use test
+
+HINT: We cannot specify a $where expression in an $elemMatch.
+HINT: We cannot specify a $text query expression in an $elemMatch.
+
+Let's find all items documents that have the following tags:
+db.inventory.find({tags: {$elemMatch: {$eq: "appliance"}}})
+
+3. Using $size:
+Syntax => {<field>: {$size: <value>}}
+mongo
+use test
+
+Let's find all items documents that have only two tags:
+db.inventory.find({tags: {$size: 2}}).pretty()
