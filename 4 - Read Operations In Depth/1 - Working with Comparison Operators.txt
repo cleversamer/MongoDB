@@ -9,6 +9,8 @@
 8. $nin: Matches none of the values specified in an array.
 
 * How can we use them?
+mongo
+use company
 
 1. Using $eq:
 Syntax => {<field>: {$eq: <value>}}

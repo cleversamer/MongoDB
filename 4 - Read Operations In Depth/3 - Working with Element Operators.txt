@@ -3,6 +3,8 @@
 2. $type:   Selects documents if a field is of the specified type.
 
 * How can we use them?
+mongo
+use company
 
 1. Using $exists:
 Syntax => { field: {$exists: <boolean>}}
