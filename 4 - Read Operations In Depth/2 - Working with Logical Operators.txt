@@ -1,0 +1,31 @@
+* The list of Logical Query Operators:
+1. $and: Joins query clauses with a logical AND returns all documents that match the conditions of both clauses.
+2. $or:  Joins query clauses with a logical OR returns all documents that match the conditions of either clause.
+3. $not: Inverts the effect of a query expression and returns documents that do not match the query expression.
+4. $nor: Joins query clauses with a logical NOR returns all documents that fail to match both clauses.
+
+* How can we use them?
+
+1. Using $and:
+Syntax => {$and: [{<expression1>}, {<expression2>}, ..., {<expressionN>}]}
+Let's find all employees that are greater than 40 years old and with salary greater than 3000:
+db.employees.find({$and: [{age: {$gt: 40}}, {salary: {%gt: 3000}}]})
+
+2. Using $or:
+Syntax => {$or: [{<expression1>}, {<expression2>}, ..., {<expressionN>}]}
+Let's find all employees that are greater than 40 years old or employees with salary greater than 3000:
+db.employees.find({$or: [{age: {$gt: 40}}, {salary: {%gt: 3000}}]})
+
+3. Using $not:
+Syntax => {<field>: {$not: {<operator-expression>}}}
+Let's find all employees that have no salary greater than 3100 (less than or equal to 3100):
+db.employees.find({salary: {$not: {$gt: 3100}}})
+
+This query will select all documents in the employees collection where:
+1. Salary is less than or equal 3100.
+2. Or salary is not exist.
+
+4. Using $nor:
+Syntax => {$nor: [{<expression1>}, {<expression2>}, ..., {<expressionN>}]}
+Let's find all employees that their salaries are neither 3100 nor 3600:
+db.employees.find({$nor: [{salary: 3100}, {salary: 3600}]})
