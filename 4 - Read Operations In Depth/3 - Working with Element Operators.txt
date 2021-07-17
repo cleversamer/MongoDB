@@ -1,0 +1,80 @@
+* The list of Element Query Operators:
+1. $exists: Matches documents that have the specified field.
+2. $type:   Selects documents if a field is of the specified type.
+
+* How can we use them?
+
+1. Using $exists:
+Syntax => { field: {$exists: <boolean>}}
+
+* Examples:
+1. Exists and Not Equal To:
+Let's find all employees documents that have "age" field, and their age is not equal to 37  or 50:
+db.employees.find({age: {$exists: true, $nin: [37, 50]}})
+
+2. Null Values:
+Let's find all employees documents that have no "age" field:
+db.employees.find({age: {$exists: true}})
+
+This query command returns all the documents that have "age" field even the "age" value is set to null.
+
+3. Not Exists:
+Let's find all the employees documents that have not "age" field:
+db.employees.find({age: {$exists: false}})
+
+2 . Using $type:
+Syntax => {<field>: {$type: <BSON type>}}
+Syntax => {<field>: {$type: [<BSON type1>, <BSON type2>, ..., <BSON typeN>]}}
+
+First syntax matches document/s where the <field> value is the BSON type.
+Second syntax matches document/s where the <field> value is any of the listed BSON types.
+ 
+Table of Types:
+* Type                * Number        * Alias                 * Notes
+  Double                1              "double"
+  String                2              "string"
+  Object                3              "object"
+  Array                 4              "array"
+  Binary data           5              "binData"
+  Undefined             6              "undefined"              Deprecated.
+  ObjectId              7              "objectId"
+  Boolean               8              "bool"
+  Date                  9              "date"
+  Null                  10             "null"
+  Regular Expression    11             "regex"
+  DBPointer             12             "dbPointer"              Deprecated.
+  JavaScript            13             "javascript"
+  Symbol                14             "symbol"                 Deprecated.
+  JavaScript code       15             "javascriptWithScope"    Deprecated in MongoDB 4.4
+  with scope
+  32-bit integer        16              "int"
+  Timestamp             17              "timestamp"
+  64-bit integer        18              "long"
+  Decimal128            19              "decimal"               New in version 3.4
+  Min key               -1              "minKey"
+  Max key               127             "maxKey"
+
+HINT: we can specify either the number or alias for the BSON type as we see above in the table.
+
+* Behaviour for fields:
+$type returns documents where the BSON type of the field matches the BSON type passed to $type.
+
+* Behaviour for Arrays:
+For documents where field is an array, $type returns documents in which at least one array element matches a BSON type passed to $type.
+
+* Examples:
+1. Querying by Data Type:
+Let's find all employees that have "age" field with type string:
+HINT: the following two queries are identical.
+db.employees.find({age: {$type : 2}})
+db.employees.find({age: {$type : "string"}})
+
+Let's find all employees that have "age" field with type number:
+HINT: the following two queries are identical.
+db.employees.find({age: {$type : 16}})
+db.employees.find({age: {$type : "int"}})
+
+2. Querying by Array Type:
+Let's find all employees documents that have "salary" field with type array:
+db.employees.find({salary: {$type : 4}})
+db.employees.find({salary: {$type : "array"}})
