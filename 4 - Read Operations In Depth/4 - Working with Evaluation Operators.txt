@@ -1,0 +1,63 @@
+* The list of Evaluation Query Operators:
+1. $expr:       Allows use of aggregation expressions within the query language.
+2. $jsonSchema: Validate documents against the given JSON Schema.
+3. $mod:        Performs a modulo operation on the value of a field and selects documents with a specified result.
+4. $regex:      Selects documents where values match a specified regular expression.
+
+* How can we use them?
+mongo
+use shop
+
+1. Using $expr:
+Syntax => {$expr: {<expression>}}
+
+Let's find all items in the sales collection where the volume is higher than the target:
+HINT: we are gonna add '$' at the beginning of each field, and that tells MongoDB that this is a document field.
+db.sales.find({$expr: {$gt: ["$volume", "$target"]}})
+
+Let's find all items where if the volume is above 190, the difference to target has to be at least 10:
+db.sales.find({$expr: {$gt: [{$cond: {if: {$gte: ["$volume", 190]}, then: {$subtract: ["$volume", 10]}, else: "$volume"}}, "$target"]}}).pretty()
+
+2. Using $jsonSchema:
+Syntax => {$jsonSchema: <JSON Schema object>}
+mongo
+use company
+
+Let's define a schema for our employees documents:
+var schema = {
+    required: ["name", "age", "salary"],
+    properties: {
+        name: { bsonType: "string" },
+        age: { bsonType: "int" },
+        salary: { bsonType: "int" }
+    }
+}
+
+Let's find all documents that match the schema:
+db.employees.find({$jsonSchema: schema})
+
+Let's find all the documents that do not match the schema:
+db.employees.find({$nor: [{$jsonSchema: schema}]})
+
+3. Using $mod:
+Syntax => {<field>: {$mod: [divisor, remainder]}}
+mongo
+use company
+
+Let's find all employees that their age is divisible by 4:
+db.employees.find({age: {$mod: [4, 0]}})
+
+4. Using $regex:
+Syntax => {<field>: {$regex: /pattern/, $options: '<options>'}}
+Syntax => {<field>: {$regex: 'pattern', $options: '<options>'}}
+Syntax => {<field>: {$regex: /pattern/<options>}}
+
+Table of $options to use them with $regex:
+* Option                * Description                               
+  i                       case-insensitive
+  m                       For patterns that include anchors (^ for the start, $ for the end), match at the beginning or end of each line for strings with multiline values.
+  x                       ignore all white space characters
+  s                       match all characters including newline characters.
+
+Let's find the "Employee 5" in our employees collection using regular expression:
+db.employees.find({name: {$regex: /5/}})
