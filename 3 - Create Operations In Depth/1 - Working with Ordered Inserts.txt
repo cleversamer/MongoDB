@@ -1,0 +1,21 @@
+MongoDB database accepts documents in its collection, and each document should have a unique ID.
+MongoDB has a default behaviour when inserting multiple documents in one operations "insertMany()".
+When inserting many documents, if the "_id" of a document is already exist, then this document and the documents will fail.
+This is the default behaviour in MongoDB. Let's go and modify this default behaviour, the only thing we are gonna do is to tell MongoDB
+that when we insert multiple documents at a time, if one document has an "_id" that already set to another document, skip this document
+and continue to insert the next document/s.
+
+1. Let's make a new database and collection and insert some documents by insertMany() method.
+HINT: the documents we are gonna insert has a duplicated "_id", so I want you to see what will be inserted.
+mongo
+use test
+db.hobbies.insertMany([{"_id": "sports", "name": "Sports"}, {"_id": "sports", "name": "Football"}, {"_id": "yoga", "name": "Yoga"}, {"_id": "cooking", "name": "Cooking"}])
+
+You see that only the first document was inserted to the collection. Because the second document has the same "_id" that the first document
+does have, this document was failed and the process was terminated. This is the default behaviour of MongoDB.
+
+2. Let's change the default behaviour of MongoDB, and insert the same documents.
+db.hobbies.drop()
+db.hobbies.insertMany([{"_id": "sports", "name": "Sports"}, {"_id": "sports", "name": "Football"}, {"_id": "yoga", "name": "Yoga"}, {"_id": "cooking", "name": "Cooking"}], {ordered: false})
+
+You see that all documents was inserted except the second document, because MongoDB does not accept any documnet that has an already used "_id".

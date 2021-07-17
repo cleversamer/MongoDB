@@ -1,0 +1,42 @@
+Now there is a second option we can specify on insertOone() and insertMany(), and that is the Write Concern option.
+
+Now we can configure a write concern on all the write operations like insertOne() with an additional argument, the write concern argument 
+which is in turn a document where we can set settings like that:
+
+{ w: 1, j: true, wtimeout: 200 }
+
+w        => write
+j        => journal
+wtimeout => a time limit, in milliseconds, for the write concern.
+
+* What is Write?
+The "w" means write, and the value indicates to how many instances, in case we are using multiple instances on one server,
+that is also something we will cover soon in the next documnets.
+
+* What is Journal?
+The "j" is an additional file which the storage engine manages which is like a To-Do file.
+
+The idea of that journal file which is a real file on the disk is just that it is aware of risks and if the server should go down for some 
+reason or anything else happens, that file is still there and if you restart the server or if it recovers basically, it can look into that 
+file and see what it needs to-do, and that is of course nice back up because the memory might have been wiped by then.
+
+So our write could be lost if it's not written to the journal, if it hasn't been written to the real data files yet, that is the idea of 
+the journal, it's like a back up to-do list.
+
+QUESTION: Why do we write it in the journal and not directly into the database files?
+ANSWER: Because writing into the database files simply is more performance heavy, the journal is like a single line which describes the 
+        write operation, writing into the database files is of course a more complex task because there we need to find the right position 
+        to insert it.
+
+* What is Wtimeout?
+It simply means which timeframe do we give our server to report a success for this write before we cancel it.
+So if we have some issues with the network connection or anything like that, we might simply timeout here, obviously setting this too low 
+might timeout even though it would have perfectly succeeded normally and therefore we should know what we do when we set this timeout value 
+because if we set it to a very low number, we might fail a lot even though there is no actual problem, just some small latency.
+
+* RECAP:
+So this is the write concern and how we can control this, obviously enabling the journal confirmation means that our writes will take longer 
+because we don't just tell the server about them, but we also need to wait for the server to store that write operation in the journal, but 
+we get higher security that the write also succeeded.
+
+Again this is a decision we have to make depending on our application needs, and what we need.
