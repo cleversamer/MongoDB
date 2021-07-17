@@ -1,0 +1,92 @@
+[
+    {
+        "code": "xyz",
+        "tags": [
+            "school",
+            "book",
+            "bag",
+            "headphone",
+            "appliance"
+        ],
+        "qty": [
+            {
+                "size": "S",
+                "num": 10,
+                "color": "blue"
+            },
+            {
+                "size": "M",
+                "num": 45,
+                "color": "blue"
+            },
+            {
+                "size": "L",
+                "num": 100,
+                "color": "green"
+            }
+        ]
+    },
+    {
+        "code": "abc",
+        "tags": [
+            "appliance",
+            "school",
+            "book"
+        ],
+        "qty": [
+            {
+                "size": "6",
+                "num": 100,
+                "color": "green"
+            },
+            {
+                "size": "6",
+                "num": 50,
+                "color": "blue"
+            },
+            {
+                "size": "8",
+                "num": 100,
+                "color": "brown"
+            }
+        ]
+    },
+    {
+        "code": "efg",
+        "tags": [
+            "school",
+            "book"
+        ],
+        "qty": [
+            {
+                "size": "S",
+                "num": 10,
+                "color": "blue"
+            },
+            {
+                "size": "M",
+                "num": 100,
+                "color": "blue"
+            },
+            {
+                "size": "L",
+                "num": 100,
+                "color": "green"
+            }
+        ]
+    },
+    {
+        "code": "ijk",
+        "tags": [
+            "electronics",
+            "school"
+        ],
+        "qty": [
+            {
+                "size": "M",
+                "num": 100,
+                "color": "green"
+            }
+        ]
+    }
+]
