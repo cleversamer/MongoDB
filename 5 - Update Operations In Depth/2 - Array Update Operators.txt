@@ -1,3 +1,65 @@
+* The list of Array Update Operators:
+1. $push:     Adds an item to an array.
+2. $pull:     Removes from an existing array all instances of a value/values that match a specified condition.
+3. $pop:      Removes the first or last item of an array.
+4. $addToSet: Adds elements to an array only if they do not already exist in the set.
+
+* The list of Array Update Operator Modifiers:
+1. $each:     Modifies the $push and $addToSet operators to append multiple items for array updates.
+2. $position: Modifies the $push operator to specify the position in the array to add elements.
+3. $slice:    Modifies the $push operator to limit the size of updated arrays.
+4. $sort:     Modifies the $push operator to re-order documents stored in an array.
+
+* How can we use them?
+
+1. Using $push:
+Syntax => {$pull: {<field1>: <value|condition>, <field2>: <value|condition>, ...}}
+mongo
+use company
+
+Let's add a new hobby to "Max" user:
+db.users.updateOne({name: "Max"}, {$push: {hobbies: {title: "Cooking", frequency: 2}}})
+
+Let's add two hobbies at a time to "Anna" user:
+db.users.updateOne({name: "Anna"}, {$push: {hobbies: {$each: [{title: "Cooking", frequency: 3}, {title: "Football", frequency: 5}]}}})
+
+2. Using $pull:
+Syntax => {$pull: {<field1>: <value|condition>, <field2>: <value|condition>, ...}}
+mongo
+use company
+
+Let's remove the duplicated hobbies that "Max" have which are "Cooking":
+db.users.updateOne({name: "Max"}, {$pull: {hobbies: {title: "Cooking"}}})
+
+3. Using $pop:
+Syntax => {$pop: {<field>: <-1 | 1>, ...}}
+HINT: To remove the first element, we pass -1.
+HINT: To remove the last element, we pass 1.
+mongo
+use company
+
+Let's remove the first hobby of "Chris" user which is "Sports":
+db.users.updateOne({name: "Chris"}, {$pop: {hobbies: -1}})
+
+Let's remove the last hobby of "Chris" user which is "Hiking":
+db.users.updateOne({name: "Chris"}, {$pop: {hobbies: 1}})
+
+4. Using $addToSet:
+Syntax => {$addToSet: {<field1>: <value1>, ...}}
+mongo
+use company
+
+Let's add an existing hobby to "Max" user, and see what happens:
+db.users.updateOne({name: "Max"}, {$addToSet: {hobbies: {title: "Sports", frequency: 3, goodFrequency: true}}})
+
+As we see, the update operation is acknowledged, but "Max" has not been modified.
+
+Let's add a new hobby to "Max" user, and see what happens:
+db.users.updateOne({name: "Max"}, {$addToSet: {hobbies: {title: "Coding", frequency: 6}}})
+
+
+***************************** Another Operations We Can Do With Arrays Without Using Array Update Operators *****************************
+
 * How can we update matched array elements?
 mongo
 use company
@@ -17,9 +79,14 @@ db.users.updateMany({"hobbies.frequency": {$gt: 2}}, {$set: {"hobbies.$.goodFreq
 Oops! The result was not as we expected. If we look at "Max" user, we see that he has two hobbies with a frequency higher than 2,
 but only the first hobby matches the filter was updated, and the second which also matches the filter was not.
 Let's modify this update operation, and select not only the ones that match our filter, but all hobbies that match the filter:
-db.users.updateMany({"hobbies.frequency": {$gt: 2}}, {$set: {"hobbies.$[].goodFrequency": true}})
+db.users.updateMany({"hobbies.frequency": {$gt: 2}}, {$set: {"hobbies.$[el].goodFrequency": true}}, {arrayFilters: [{"el.frequency": {$gt: 2}}]})
 
-Now this worked as we expected. The only change that we made is to put "[]" after "$", and that means update all elements that matches
-the filter and not only the first one matched the filter.
+This worked successfully! The changes we made are:
+1. We put "[]" after "$" and that means update all elements that matches the filter.
+2. We defined an identifier inside "[]" called "el" as follows: [el]
+3. Now the "el" identifier we passed to "[]" is not understood by MongoDB, we have to define it in a third argument,
+   and in the third argument, we pass "arrayFilters" as an array, and in this "arrayFilters", we push "el" as an element,
+   and define it as {"el.frequency": {$gt: 2}}. Now "el" specifies each element in the hobbies array with a frequency greater thant 2.
 
-* How can we find and update a specific field?
+QUESTION: What will happen if we didn't pass "el" to the "[]" and didn't define it in a third argument?
+ANSWER: This will work, but with no specification. All hobbies on each document will be updated.
