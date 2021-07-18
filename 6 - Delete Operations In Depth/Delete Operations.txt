@@ -1,0 +1,23 @@
+* How can we delete document or multiple document in a collection?
+1. To delete multiple documents:
+db.<collection>.deleteMany({filter})
+
+2. To delete a single document:
+db.<collection>.deleteOne({filter})
+
+* How can we delete all documents in the collection?
+Using deleteMany() method, and not passing a filter argument to it.
+db.<collection>.deleteMany() => This deletes the entire collection.
+
+* How can we delete all documents that matches a filter?
+Using deleteMany() method, and pass the filter as an argument to it.
+db.<collection>.deleteMany({filter}) => This deletes all documents that match the filter.
+
+* How can we delete only one document that matches a filter?
+Using deleteOne({filter}) method. and pass the filter as an argument to it.
+db.<collection>.deleteOne({filter}) => This deletes only the first document that matches the passed filter.
+
+
+
+
+This is all about Delete Operations.
