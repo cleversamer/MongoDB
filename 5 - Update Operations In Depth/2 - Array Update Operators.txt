@@ -1,0 +1,25 @@
+* How can we update matched array elements?
+mongo
+use company
+
+Let's update each user that has a "Sport" hobby with a "frequency" greater than or equal to 3, and add a new field "highFrequency" to it,
+and set it to true:
+db.users.updateMany({hobbies: {$elemMatch: {title: "Sports", frequency: {$gte: 3}}}}, {$set: {"hobbies.$.highFrequency": true}})
+HINT: "hobbies.$" specifies the hobby document that matched the filter, and we added a new field "highFrequency" to it, and set it to true.
+
+* How can we update all array elements?
+mongo
+use company
+
+Let's update each user's hobby with a frequency higher than 2, and add a new field "goodFrequency" to it, and then set it to true:
+db.users.updateMany({"hobbies.frequency": {$gt: 2}}, {$set: {"hobbies.$.goodFrequency": true}})
+
+Oops! The result was not as we expected. If we look at "Max" user, we see that he has two hobbies with a frequency higher than 2,
+but only the first hobby matches the filter was updated, and the second which also matches the filter was not.
+Let's modify this update operation, and select not only the ones that match our filter, but all hobbies that match the filter:
+db.users.updateMany({"hobbies.frequency": {$gt: 2}}, {$set: {"hobbies.$[].goodFrequency": true}})
+
+Now this worked as we expected. The only change that we made is to put "[]" after "$", and that means update all elements that matches
+the filter and not only the first one matched the filter.
+
+* How can we find and update a specific field?

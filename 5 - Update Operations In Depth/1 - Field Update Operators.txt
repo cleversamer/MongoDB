@@ -1,0 +1,93 @@
+* The list of Field Update Operators:
+1. $set:         Sets the value of a field in a document.
+2. $unset:       Removes the specified field from a document.
+3. $inc:         Increments the value of the field by the specified amount.
+4. $min:         Only updates the field if the specified value is less than the existing field value.
+5. $max:         Only updates the field if the specified value is greater than the existing field value.
+6. $mul:         Multiplies the value of the field by the specified amount.
+7. $rename:      Renames a field.
+8. $currentDate: Sets the value of a field to current date, either as a Date or a Timestamp.
+
+* How can we use them?
+
+1. Using $set:
+Syntax => {$set: {<field1>: <value1>, ...}}
+mongo
+use company
+
+Let's set the salary of each employee older than 50 to $6000:
+db.employees.updateMany({age: {$gt: 50}}, {$set: {salary: 6000}})
+
+2. Using $unset:
+Syntax => {$unset: {<field1>: "", ...}}
+mongo
+use tv
+
+Let's delete (unset) the "id" of each movie:
+HINT: We are gonna delete "id" and not "_id" which is generated automatically by MongoDB.
+db.movies.updateMany({}, {$unset: {id: ""}})
+
+3. Using $inc:
+Syntax => {$inc: {<field1>: <amount1>, <field2>: <amount2>, ...}}
+HINT: We can use $inc operator to decrement numeric values by passing a negative value.
+mongo
+use tv
+
+Let's increment the rating of each movie by 1 for each movie with a rating less than 8:
+db.movies.updateMany({"rating.average": {$lt: 8}}, {$inc: {"rating.average": 1}})
+
+4. Using $min:
+Syntax => {$min: {<field1>: <value1>, ...}}
+HINT: If the field does not exist, the $min operator sets the field to the specified value.
+mongo
+use shop
+
+Let's update the volume of each sale to 150, if the volume is greater than 150:
+db.sales.updateMany({}, {$min: {volume: 150}})
+
+5. Using $max:
+Syntax => {$max: {<field1>: <value1>, ...}}
+HINT: If the field does not exists, the $max operator sets the field to the specified value.
+mongo
+use shop
+
+Let's update the volume of each sale to 100, if the volume is less than 100:
+db.sales.updateMany({}, {$max: {volume: 100}})
+
+6. Using $mul:
+Syntax => {$mul: {<field1>: <number1>, ...}}
+mongo
+use shop
+
+Let's duplicate the target of each sale, if the volume is greater than 100:
+db.sales.updateMany({volume: {$gt: 100}}, {$mul: {target: 2}})
+
+7. Using $rename:
+Syntax => {$rename: {<field1>: <newName1>, <field2>: <newName2>, ...}}
+mongo 
+use company
+
+Let's rename field "name" to "nickname" in each document:
+db.employees.updateMany({}, {$rename: {name: "nickname"}})
+
+8. Using $currentDate:
+Syntax => {$currentDate: {<field1>: <typeSpecification1>, ...}}
+HINT: If the field does not exist, $currentDate adds the field to a document.
+mongo
+use tv
+
+Let's add a new filed "lastView" to each movie, and set it to the current date:
+db.movies.updateMany({}, {$currentDate: {lastView: true}})
+
+***************************** Understanding Upsert *****************************
+What is upsert()?
+Upsert() is an option allows us to create documents when the documents we search for are not exist.
+
+So, if we try to update one document, we find this document by a filter, if no document matches the filter, then the upsert option
+will create the document we want to update. We can do that by passing a third document to either updateOne() or updateMany(), and
+in this document we specify the option "upsert" to "true", like this { upsert: true }.
+
+Let's update the "employee 11" that does not exist in our employees collection:
+mongo
+use company
+db.employees.updateMany({name: "Employee 11"}, {$set: {nickname: "Employee 11", age: 39, salary: 4100}}, {upsert: true})
