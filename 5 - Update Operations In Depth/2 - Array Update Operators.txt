@@ -13,7 +13,7 @@
 * How can we use them?
 
 1. Using $push:
-Syntax => {$pull: {<field1>: <value|condition>, <field2>: <value|condition>, ...}}
+Syntax => {$push: {<field1>: <value|condition>, <field2>: <value|condition>, ...}}
 mongo
 use company
 
