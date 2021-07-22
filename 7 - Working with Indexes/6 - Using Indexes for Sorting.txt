@@ -1,0 +1,16 @@
+It's important to understand that indexes are not just used for finding, but they can also help us with sorting because we have
+a sorted list of elements of the index.
+MongoDB can utilize that in case we want to sort in the same way that index list is sorted.
+Let's find all people with an age of 35 and then sort them by gender in ascending order:
+db.persons.explain("executionStats").find({age: 35}).sort({gender: 1})
+
+We see that it did actually use an index scan (IXSCAN) for both gender and age.
+Now also important to understand or to know here is that if we are not using indexes and we do a sort on a large amount of documents,
+we can actually timeout because MongoDB has a threshold of 32MB in memory for sorting, and if we have no index, MongoDB will essentially
+fetch all our documents into memory and do the sort there.
+And for large collections and large amounts of fetched documents, this can simply be too much to then sort.
+So sometimes, we also need an index not just to speed up the query which always makes sense but also to be able to sort at all.
+
+Something important to keep in mind that when we're sorting documents, and we have a lot of documents at a given query, we might 
+need an index to be able to sort them at all, because MongoDB has this threshold of 32MB which it reserves in memory for the fetched
+documents and sorting them.

@@ -1,0 +1,38 @@
+MongoDB gives us a nice tool that we can use to analyze how it executed the query, and this tool is a simple method we add to our query.
+We can add the explain() method and then chain our normal query, explain works for find, update, delete, and not for insert.
+We can pass an argument to explain() method, and that argument is a string where we control the verbosity of this command.
+If we pass "executionStats" to explain() method, then we find a detailed output for a query, and how the results were returned.
+
+For example: db.<collection>.explain("executionStats).find(<query>)
+
+Let's view the explanation of the operation of finding all people who are older than 60:
+mongo
+use contactData
+db.persons.explain("executionStats").find({"dob.age": {$gt: 60}})
+
+We find some important results in the explanation object in the "executionStats" property:
+"nReturned" : 1222,                     => Means number of documents that matched the filter.
+"executionTimeMillis" : <some number>,  => Means time took to execute the operation (it differs from computer to another).
+"totalKeysExamined" : 0,                => Means number of index keys examined.
+"totalDocsExamined" : 5000,             => Means number of documents examined.
+"executionStages.stage" : "COLLSCAN"    => Means type of scan/query which is in this case column-scan (scan the entire collection).
+
+As we see, our query scanned the entire collection to give us the result.
+
+Let's add an index to improve our query, and look at the results:
+HINT: We can create an index by the following syntax => db.<collection>.createIndex({<field>: <1 | -1>})
+HINT: The number we specify when we create an index simply means ascending/descending order (1 for ascending, and -1 for descending).
+mongo
+use contactData
+db.persons.createIndex({"dob.age": 1})
+db.persons.explain("executionStats").find({"dob.age": {$gt: 60}})
+
+We find some important results in the explanation object in the "executionStats" property:
+"nReturned" : 1222,                            => Means number of documents that matched the filter.
+"executionTimeMillis" : <some number>,         => Means time took to execute the operation (it differs from computer to another).
+"totalKeysExamined" : 1222,                    => Means number of index keys examined.
+"totalDocsExamined" : 1222,                    => Means number of documents examined.
+"executionStages.inputStage.stage" : "IXSCAN"  => Means that the query used indexes (IXSCAN => Index scan).
+
+We see that the "executionTimeMillis" is down significantly.
+That's the impact of using indexes. It speeds up our queries.

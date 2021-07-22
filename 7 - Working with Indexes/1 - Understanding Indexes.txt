@@ -1,0 +1,58 @@
+We learned a lot about general queries, and how to store data, and how to retrieve data. It's time to also learn how to retrieve data 
+efficiently. Indexes are a feature that can drastically speed up our queries. Though if used incorrectly, they can also slow down some 
+of our operations.
+
+* What are Indexes?
+An index can speed up our find, update or delete queries. So all the queries where we are looking for certain documents that should match 
+some criteria.
+
+* A QUICK OVERVIEW:
+Let's assume that we have a collection of products, and we want to search for a documnet with this query:
+db.products.find({seller: "Max"})
+
+Then, what will MongoDB do?
+
+MongoDB will go ahead and do a so-called collection scan, and that simply means that MongoDB to fulfill this query will go through the 
+entire collection, look at every single document, and see if seller equals "Max", and as we can imagine for very large collections with 
+thousands or millions of documents, this can take a while.
+
+Now we can create an index though, an index is not a replacement for a collection, but an addition we could say, so we would create an 
+index for the "seller" key of the "products" collection here, and that index then exists additionally to the collection, and the index 
+is essentially an ordered list of all the values that are placed or stored in the "seller" key for all the documents.
+So it's not an ordered list of the documents, just of the values for the field for which we created that index, and it's not just an ordered 
+list of the values, of course every value, every item in the index has a pointer to the full document it belongs to.
+
+Now this allows MongoDB to do a so-called index scan to fulfill this query, which means it sees that for seller, such an index exists, 
+and it therefore simply goes to that seller index and can quickly jump to the right values because there, unlike for the collection,
+it knows that the values are sorted by that key, so it doesn't have to look at the first three records if it's only looking for records 
+starting with "M" or to be precise, records equal to "Max".
+So it can very efficiently go through that index and then find the matching products, because of that ordering, and because of that pointer, 
+every element in this index has.
+So MongoDB finds the value for this query and then finds the related documents it can return this, so it's this direct access that MongoDB 
+can use here and that speeds up our queries.
+
+However we shouldn't overdo it with the indexes, because we could of course think well, Ok! I got my product selection and every product
+has ID, name, age and hobby, and then I could simply create indexes for all fields, and I will have the best performance ever, right?
+Because no matter for what we look, we got an index for that.
+Well this might speed up our find queries, that is correct, indexes on all fields would speed up find queries, because we can query for 
+every field efficiently, but an index does not come for free, we will pay some performance cost on inserts, because that extra index that 
+has to be maintained needs to be updated with every insert, makes sense right!
+
+Because we have an ordered list of elements with pointers to the documents. So if we add a new document, we also have to add a new element
+to the index and that might sound simple, and it won't take super long, but if we've got 10 indexes for your documents in our collection,
+and we have to update all 10 indexes for every insert, then we might quickly run into issues, because we will have to do a lot of work for 
+all these fields, for every insert and for every update too.
+
+Therefore, indexes don't come for free and we really have to find out which indexes makes sense, and which indexes don't, and this is exactly
+what we will also do in this module.
+We will walk through all the different index types that exist in MongoDB, and we will also see how can we measure whether an index makes
+sense or does not make sense.
+
+* What is the default Index?
+
+Let's take a look at the indexes we have in our collection:
+db.persons.getIndexes()
+
+We see that we have one index and we didn't make any index before. That's the default index.
+When we create a new collection, an index for "_id" property created automatically and we have no control on it, we cannot delete it.
+And that's helpful when we want to find a document with its "_id", it speeds up our query by document's ID.
