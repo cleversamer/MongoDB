@@ -1,0 +1,23 @@
+Now we had a detailed look at what indexes do and how we can create our own indexes, and we can only be encouraged to play around with 
+that to get a better feeling for our different options and how indexes work.
+But in order to play around and to understand if an index is worth the effort, we need to know how to diagnose our queries and we already
+did see the explain() method for this.
+
+* The important part here is that we can:
+1. execute it like this: explain()
+2. pass "queryPlanner" as an argument to get that default minimal output where it simply tells us the winning plan and not much else.
+3. pass "executionStats" to see detailed summary outputs and see information about the winning plan and possibly rejected plan and also
+   some information about how long it took.
+4. pass "allPlansExecution" to see detailed summaries and which also gives us more information about how the winning plan was chosen.
+
+Now we'll have a look at all three of them throughout this section again.
+For determining whether a query is efficient, it's obviously interesting to look at the milliseconds process time and also compare this
+to a solution where we don't use an index, so that we'll also have a look whether index scan really beats a collection scan which it 
+typically does though, but we did already see some use cases in cases where we fetch almost everything where the index scan can be slower
+and another important measure is that we compare the number of keys in the index, that is what it means in the output are examined,
+how many documents that are examined and how many documents that are returned, and the keys and document should be close together,
+and documents, examine the documents returned should be closed or documents should be zero so that it looked at zero documents and when
+would this be the case?
+
+In a so-called covered query, and now, what is a covered query?
+We are gonna take a look in the next lesson.
