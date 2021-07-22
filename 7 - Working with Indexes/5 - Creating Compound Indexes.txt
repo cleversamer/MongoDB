@@ -1,6 +1,0 @@
-Let's say that we want to use index to find all contacts that are both greater than 30 and male. Here we use a Compound Index!
-Let's make a new index for both "dob.age" and "gender" with ascending order:
-db.persons.createIndex({"dob.age": 1, gender: 1})
-
-Now we have a compound index, we can use it to speed up our queries for both properties (age and gender).
-We can also use this index to query documents with only "age" property.
