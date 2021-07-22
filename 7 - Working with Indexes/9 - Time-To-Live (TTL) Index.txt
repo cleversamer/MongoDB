@@ -1,0 +1,24 @@
+Now the last interesting index option we want to see is a Time-To-Live index and that's a really cool kind of index that can be very 
+helpful for a lot of applications where we have self-destroying data.
+Let's say sessions of users where we want to clear their data after some duration or anything like that.
+
+Let's create a new sessions collection and insert one document, and that one document will receive some data:
+mongo
+use contactData
+db.sessions.insertOne({data: "abcdefg", createdAt: new Date()})
+
+Now let's add a Time-To-Live index to the sessions collection:
+db.sessions.createIndex({createdAt: 1}, {expireAfterSeconds: 3})
+
+This is a special feature MongoDB offers and that only works on date indexes or on date fields, on other fields it will just be ignored.
+
+Let's insert a new document and see what will happen:
+db.sessions.insertOne({data: "asdxyz", createdAt: new Date()})
+
+Let's find all items in the sessions collection:
+db.sessions.find()
+
+We still see two documents, but let's find all documents in the collection after 10 seconds:
+db.sessions.find()
+
+We see that the collection is empty.
