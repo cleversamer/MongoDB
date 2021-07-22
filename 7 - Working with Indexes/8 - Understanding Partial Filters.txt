@@ -1,0 +1,70 @@
+Another very interesting kind of configuring a filter is setting up a so-called partial filter.
+
+Now in our persons collection, we have persons older than 20, older than 30 and so on, now let's say in the application we're building,
+which is an application for calculating what our friends will get once they retire.
+We typically only look for persons older than 60. Having an index on the "dob.age" field then might make sense, but the problem of course 
+is that we have a lot of values in our index that we never actually query for.
+
+Now our index will still be efficient but it will be unnecessarily big and of course an index also eats up size on our disk.
+Additionally the bigger index is, well the more performance certain queries will take nonetheless.
+
+So if we know that certain values will not be looked at or only very very rarely and we would be fine using a collection scan if that happens, 
+we can actually create a partial index where we only add the values we're regularly going to look at, so in our case here, persons, 
+let's see which indexes we have right now and we only got the ID, so let's now create a new index with createIndex() of course and let's 
+create that index on the "dob.age" field but there, still in ascending order, but now with an additional argument here and that argument for 
+us is a partial filter expression:
+mongo
+use contactData
+db.persons.createIndex({"dob.age": 1}, {partialFilterExpression: {gender: "male"}})
+
+HINT: we can also add this to compound index of course because now here, we defined which field is our interesting field for narrowing 
+      down the set of values we want to add and we used our "dob.age" field.
+
+Now we have two indexes in the persons collection, one is for "_id" (default index), and the other is the one we have created.
+Let's find all persons with "dob.age" greater than 60 and explain it:
+db.persons.explain("executionStats").find({"dob.age": {$gt: 60}})
+
+We see that the MongoDB used the collection scan for our query, why?
+Because the index we have created is interested in only the males.
+
+And to use the index scan, we should specify gender as "male":
+db.persons.explain("executionStats").find({"dob.age": {$gt: 60}, gender: "male"})
+
+We see that MongoDB used the index scan for our last query.
+
+Now in our application we talked about, this is not the best use case to do, we want to add an index and configure it as a partial filter,
+and our index will be limited to the persons with "age" greater than 60.
+After that, our query is gonna be more efficient and not unnecessarily big.
+
+
+*******************************************************************************************************************************************
+
+Let's apply the partial index in a new example.
+We are gonna make a new collection in the contactData database, and insert some documents:
+mongo
+use contactData
+db.users.insertMany([{name: "Max", email: "max@test.com"}, {name: "Anna"}])
+
+Let's create an index for emails as a unique value in ascending order:
+db.users.createIndex({email: 1}, {unique: true})
+
+Let's insert a new user to the collection without email:
+db.users.insertOne({name: "Manu"})
+
+Oops! We got an error (duplicate key error), and that's because we already have a user registered without an email.
+Now if we have that use case and we know yeah but we want to be able to turn this into a unique index and it's ok if some people don't have 
+an e-mail address, if that is what we want to do, then we have to create the index a bit differently.
+
+Let's drop our index:
+db.users.dropIndex({email: 1})
+
+Let's create a new index to apply the feature we want (people can sign up without an email):
+db.users.createIndex({email: 1}, {unique: true, partialFilterExpression: {email: {$exists: true}})
+
+This filter simply says we only want to add elements into our index where the email field exists, and this will avoid the case of having a
+clash with unique.
+
+Let's insert a new user without an email:
+db.users.insertOne({name: "Manu"})
+
+We see, it works!!
