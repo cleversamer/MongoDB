@@ -1,0 +1,27 @@
+Let's create a new collection and insert two documents to it:
+mongo
+use contactData
+db.customers.insertMany([{name: "Max", age: 29, salary: 4000}, {name: "Manu", age: 31, salary: 5000}])
+
+Let's create an index for the "name" field in ascending order:
+db.customers.createIndex({name: 1})
+
+Let's find a customer in the collection with name "Max" and explain the process:
+db.customers.explain("executionStats").find({name: "Max"})
+
+We see that the following parts if the result:
+"nReturned" : 1,
+"totalKeysExamined" : 1,
+"totalDocsExamined" : 1,
+
+That means that our query used the index and then got the pointer to the document we want.
+What if we look for only the property that is used for the index which is "name", then we will reduce the process of going
+to the pointer and return the document, and we will see that the "totalDocsExamined" is ZERO, because the value returned is
+the name of the document we are looking for, and that property is stored in the index, so it will be returned and that behaviour
+of MognoDB makes our query more eficient.
+
+Let's query the name of the document we looked for:
+db.customers.explain("executionStats").find({name: "Max"}, {_id: 0, name: 1})
+
+We see that "totalDocsExamined" is ZERO, because the data we want is stored in the index, and there is no need to use the pointer
+and then get the document from the collection, and then return the name.
