@@ -1,0 +1,75 @@
+Now let's learn two new types of indexes and the first one is the so-called multikey index.
+
+Let's create a new collection in contactData database ans insert one document:
+mongo
+use contactData
+db.contacts.insertOne({name: "Max", hobbies: ["Cooking", "Sports"], addresses: [{street: "Main Street"}, {street: "Second Street"}]})
+
+Now let's index an array:
+db.contacts.createIndex({hobbies: 1})
+
+Let's try using that and query for a document that has a "Sports" hobby:
+db.contacts.find({hobbies: "Sports"})
+
+Let's repeat the last query and explain it:
+db.contacts.explain("executionStats").find({hobbies: "Sports"})
+
+We see that the property "isMultiKey" is set to "true" for our "hobbies" index.
+Multikey indexes are working like normal indexes but they are stored up differently.
+What mongodb does is it pulls out all the values in our index key, so in hobbies in our case here, so it pulls out all the values in the
+array we stored in there, and stores them as separate elements in an index.
+This of course means that multikey indexes for a lot of documents are bigger than single field indexes, because if every document has an
+array with let's say four values on average, and we have a thousand documents and that array field is what we index, we would store four 
+thousand elements because four times one thousand.
+So this is something to keep in mind, multikey indexes are possible but typically are also bigger, doesn't mean we shouldn't use them.
+If we typically query for an array and the value in an array, well then it makes sense to turn this array into a multikey index, that is 
+perfectly fine.
+
+Let's index an array again:
+db.contacts.createIndex({addresses: 1})
+
+Let's find document that has an address in "Main Street" and explain it:
+db.contacts.explain("executionStats").find({"addresses.street": "Main Street"})
+
+We see that it actually used a colelction scan and not our index.
+The reason for that is that our index of course holds the whole documents and not the fields of the documents, so MongoDB does not go so
+far to pull out the elements of an array and then pull out all field values of a nested document that array might hold.
+So our index would only get used if we were not looking for the street in the addresses we have in that array.
+
+Let's repeat the last query but with a different syntax:
+db.contacts.explain("executionStats").find({addresses: {street: "Main Street"}})
+
+We see that it actually used index scan.
+Because it is the whole document which is in our index in the end. MongoDB pulls out the elements of the array for addresses as single 
+element in the array happens to be a document, so that document is what MongoDB pulled out and what MongoDB then stored in the index
+registry, and therefore this is something to be aware.
+
+Let's index an array again:
+db.contacts.createIndex({"addresses.street": 1})
+
+Let's repeat our earlier query:
+db.contacts.explain("executionStats").find({"addresses.street": "Main Street"})
+
+We see that it used an index scan for this and it is a multikey index.
+So we can also use an index on a field in an embedded document which is part of an array with that multikey feature.
+We should just be aware that of course using multi multikey features on a single collection will quickly lead to some performance issues 
+with rights, because for every new document we add, all these multikey indexes have to be updated, and if we add a new document with 10 
+values in that array which we happen to store in a multikey index, then these 10 new entries need to be added to the index registry, and if 
+we then have four or five of these multikey indexes per document, well then you quickly are in a low performance world.
+
+Still multikey index is super helpful if we have queries that regularly target array values or even nested values or values in an embedded 
+document in arrays.
+
+There are a couple of restrictions or one important restriction to be precise when using multikey indexes, and that is that if we add an 
+index, a multikey index and we add it as part of a compound index, that is generally possible, like that:
+
+db.contacts.createIndex({name: 1, hobbies: 1}) => This works!
+
+However what will not work is that when we want a compound index made up of two or more multikey indexes, like that:
+
+db.contacts.createIndex({hobbies: 1, addresses: 1}) => This does not work!
+
+The reason for that is simple, MongoDB would have to store the cartesian product of the values of both indexes, of both arrays, so it would 
+have to pull out all the addresses and for every address, it would have to store all the hobbies.
+So if we have two addresses and five hobbies, we already have to store 10 values and that of course becomes even worse the more values we
+have in addresses, so that is why this is not possible.
