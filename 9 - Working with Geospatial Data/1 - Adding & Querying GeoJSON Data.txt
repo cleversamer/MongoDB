@@ -3,14 +3,14 @@ Every single document in the collection represents a real world place, and this 
 So we can get the data from "Google Maps", and when we find any place in the map, we can pick its name and location, and then
 use them in our collection.
 
-We are gonna pick a place in Californai State called California Academy of Sciences, and this is the link of it:
+We are gonna pick a place in California State called California Academy of Sciences, and this is the link of it:
 https://www.google.com/maps/place/California+Academy+of+Sciences/@37.7698688,-122.4682834,17z/data=!3m2!4b1!5s0x80858743a90cd067:0xba7e223a6834f740!4m5!3m4!1s0x80858743acfb4421:0x1b8487cfc077cab9!8m2!3d37.7698646!4d-122.4660947
 
 Now each location has two values (coordinates):
 1. Latitude
 2. Longitude
 
-In our case, the link above has these coordinates written after the @:
+In our case, the link above has these coordinates written after the @ and seperated by comma:
 The first one after @ is Latitude which is 37.7698688
 The second one after @ is Longitude which is -122.4682834
 
@@ -48,4 +48,27 @@ So for this, we will need a geospatial index for this query to run.
 Not all geospatial queries require index, but they all just as with other indexes will most likely benefit from having such an index.
 
 **************************************** Adding a Geospatial Index to Track the Distance ****************************************
+
+Let's create an index to help us finding near places to us:
+db.places.createIndex({location: "2dsphere"})
+
+db.places.find({location: {$near: {$geometry: {type: "Point", coordinates: [-122.471114, 37.771104]}}}}).pretty()
+
+We can also define the min and max distance in our query to get some near places.
+
+So now we are within 10 and 500 meters and therefore, we find our favorite place like this:
+db.places.find({location: {$near: {$minDistance: 10, $maxDistance: 500, $geometry: {type: "Point", coordinates: [-122.471114, 37.771104]}}}}).pretty()
+
+And this of course is a great query because it allows us to find out which places are near us in a certain radius.
+
+************************************************** Adding Additional Locations **************************************************
+
+Let's add a place called "Conservatory of Flowers" to our collection:
+db.places.insertOne({name: "Conservatory of Flowers", location: {type: "Point", coordinates: [-122.4615748, 37.7701756]}})
+
+Let's add a place called "Golden Gate Tennis Park" to our collection:
+db.places.insertOne({name: "Golden Gate Tennis Park", location: {type: "Point", coordinates: [-122.4593702, 37.7705046]}})
+
+Let's add a place called "Nopa" to our collection:
+db.places.insertOne({name: "Nopa", location: {type: "Point", coordinates: [-122.4389058, 37.7747145]}})
 

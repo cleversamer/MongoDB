@@ -1,0 +1,24 @@
+Now we have 4 places in our database "awesomeplaces" in "places" collection,
+we can find their names by the following query:
+db.places.find({}, {_id: 0, name: 1}).pretty()
+
+* The 4 places in our "places" collection:
+1. California Academy of Sciences
+2. Conservatory of Flowers
+3. Golden Gate Tennis Park
+4. Nopa
+
+Let's define new 4 points (coordinates) using the shell:
+const p1 = [-122.4547, 37.77473]
+const p2 = [-122.45303, 37.76641]
+const p3 = [-122.51026, 37.76411]
+const p4 = [-122.51088, 37.77131]
+
+Now we have 4 points and these 4 points represent a shape (certain area in the map).
+So we want to find all places within this area, let's do this:
+db.places.find({location: {$geoWithin: {$geometry: {type: "Polygon", coordinates: [[p1, p2, p3, p4, p1]]}}}}).pretty()
+
+We found 3 of 4 places we have, and these 3 places are inside the area we specified.
+
+HINT: we added p1, p2, p3, and p4 to describe the corners of the area, the reason we added p1 after them is that the Polygon has to end
+      with a starting point.
