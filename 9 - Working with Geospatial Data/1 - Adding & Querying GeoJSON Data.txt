@@ -101,3 +101,23 @@ HINT: we added p1, p2, p3, and p4 to describe the corners of the area, the reaso
 
 ***************************************** Finding Out If a User Is Inside a Specific Area ***************************************
 
+Let's add a new collection "area" and insert a specific area:
+db.areas.insertOne({name: "Golden Gate Park", area: {type: "Polygon", coordinates: [[p1, p2, p3, p4, p1]]}})
+
+Now we have an area, let's find out if a user is inside this area.
+First, let's creare an index for the "areas" collection:
+db.areas.createIndex({area: "2dsphere"})
+
+Then, let's find out if a user is inside the area we inserted:
+db.areas.find({area: {$geoIntersects: {$geometry: {type: "Point", coordinates: [-122.49089, 37.76992]}}}}).pretty()
+
+We got the area "Golden Gate Park", and that means the coordinates of the user intersects with the returned area.
+
+HINT: $geoIntersects simply returns all areas that have a common point or a common area.
+
+********************************************** Finding Places Within a Certain Radius *******************************************
+
+Let's find all places in the "places" collection in an unsorted order that are within a certain radius:
+db.places.find({location: {$geoWithin: {$centerSphere: [[-122.46203, 37.77286], 1 / 6378.1]}}}).pretty()
+
+We found all places we have inserted except "Nopa" because it is outside.
