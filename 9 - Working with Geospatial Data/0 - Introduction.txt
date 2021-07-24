@@ -1,0 +1,11 @@
+In MongoDB, we cannot just query text, booleans, number, states, we can also query locations and with this, we are really talking about 
+queries like find us all restaurants in this radius, or find us the nearest location to our current location.
+
+So there are a lot of fun queries we can do with this so-called Geospatial Data.
+
+* In this section, we will look at how we can:
+1. Store Geospatial Data in the special GeoJSON format.
+2. Query this Geospatial Data efficiently with the help of indexes and a couple of special operators 
+   that are suited to work well with Geospatial Data.
+
+So let's dive into this and let's start working with some locations and places.

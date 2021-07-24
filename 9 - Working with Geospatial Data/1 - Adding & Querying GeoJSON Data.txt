@@ -1,0 +1,51 @@
+In this section we will use a new database called "awesomeplaces" with the collection "places".
+Every single document in the collection represents a real world place, and this place has "name" and "location".
+So we can get the data from "Google Maps", and when we find any place in the map, we can pick its name and location, and then
+use them in our collection.
+
+We are gonna pick a place in Californai State called California Academy of Sciences, and this is the link of it:
+https://www.google.com/maps/place/California+Academy+of+Sciences/@37.7698688,-122.4682834,17z/data=!3m2!4b1!5s0x80858743a90cd067:0xba7e223a6834f740!4m5!3m4!1s0x80858743acfb4421:0x1b8487cfc077cab9!8m2!3d37.7698646!4d-122.4660947
+
+Now each location has two values (coordinates):
+1. Latitude
+2. Longitude
+
+In our case, the link above has these coordinates written after the @:
+The first one after @ is Latitude which is 37.7698688
+The second one after @ is Longitude which is -122.4682834
+
+****************************************************** Adding GeoJSON Data ******************************************************
+
+Now we have the coordinates of the California Academy of Sciences, let's use them in our collection:
+mongo
+use awesomeplaces
+db.places.insertOne({name: "California Academy of Sciences", location: {type: "Point", coordinates: [-122.4682834, 37.7698688]}})
+
+Now let's discuss about what we did in our insert:
+name        => The name of the place.
+location    => Represents the location as a GeoJSON data.
+type        => Here we used Point, because our location is defined by coordinates.
+coordinates => The coordinates of the place, it takes an array of coordinates [<Longitude>, <Latitude>].
+
+So in this document, the embedded location document represents the GeoJSON data.
+
+***************************************************** Querying GeoJSON Data *****************************************************
+
+* What is our location?
+So therefore we might have a Web Application where users can locate themselves, we can do that through some web APIs or we have a 
+Mobile App where users can locate themselves.
+Suchlocation APIs will always return coordinates in the form of Latitude and Longitude, this is the standard format.
+So our application will give us some Latitude and Longitude data for whatever our user did, for example locate himself.
+
+Let's find some places that are near of our current location (which is fake, we are gonna use this [-122.471114, 37.771104]):
+db.places.find({$near: {$geometry: {type: "Point", location: [-122.471114, 37.771104]}}})
+
+We got an error, the error is telling us that it's unable to find an index for the $geoNear query,
+and $geoNear is simply the behind the scenes name of our near query.
+
+So for this, we will need a geospatial index for this query to run.
+
+Not all geospatial queries require index, but they all just as with other indexes will most likely benefit from having such an index.
+
+**************************************** Adding a Geospatial Index to Track the Distance ****************************************
+
