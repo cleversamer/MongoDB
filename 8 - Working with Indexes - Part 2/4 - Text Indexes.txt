@@ -1,0 +1,169 @@
+Let's say we have this text stored in a field in our document, could be the product description of a product:
+"This product is a must-buy for all fans of modern fiction!"
+
+Now if we want to search that text, we saw before that we can use the $regex operator and that is however not a really great way of 
+searching text, it offers a very low performance.
+
+Better is to use a text index and a text index is a special kind of index supported by MongoDB which will essentially turn this text into
+an array of single words and it will store it as such:
+["product", "must", "buy", "fans", "modern", "fiction"]
+
+It removes all the stop words and it stems all words, so that we have an array of keywords essentially.
+
+Let's create a new collection for products and insert some products:
+mongo
+use company
+db.products.insertMany([{title: "A book", description: "This is an awesome book about a young artist!"}, {title: "Red T-Shirt", description: "This T-Shirt is red and it's pretty awesome!"}])
+
+Let's make a text index in the description field:
+db.products.createIndex({description: "text"})  => "text" means that this is a text index.
+
+Let's use the special $text and $search operators. We want to search for a red t-shirt:
+db.products.find({$text: {$search: "red t-shirt"}}).pretty()
+
+HINT: Everything is stored in lower-case, so we don't worry about case-sensitive.
+
+Let's find a product that has an exact same phrase:
+db.products.find({$text: {$search: "\"awesome book\""}}).pretty()
+
+********************************************* Text Indexes & Sorting *********************************************
+
+Let's find an "awesome t-shirt":
+db.products.find({$text: {$search: "awesome t-shirt"}}).pretty()
+
+We see we it found both products.
+Now finding both might be fine but we typically would want to order this differently, for us humans it's pretty clear that the second 
+product (which is the "Red T-Shirt" in my case) is the better hit, because there we have both "awesome" and "t-shirt", so would be nice 
+if that would come first in our result list and we can actually get there, because MongoDB does something interesting or special when 
+managing such a text index or when searching for text in a text index, we can find out how it scores its results, and let's first of all 
+find out with the help of projection.
+
+Let's repeat our query and add an extra argument:
+db.products.find({$text: {$search: "awesome t-shirt"}}, {score: {$meta: "textScore"}}).pretty()
+
+We see the score of both that MongoDB assigned to a result, and it even automatically sort it by that score now as we see.
+We see that the score is much higher for "T-shirt" and "awesome" than for just "awesome" and it automatically sort it for us.
+
+If we want to make sure, we can of course also use sort() method:
+db.products.find({$text: {$search: "awesome t-shirt"}}, {score: {$meta: "textScore"}}).sort({score: {$meta: "textScore"}}).pretty()
+
+We got the same results as before, but we did that just to make sure.
+
+********************************************* Creating Combined Text Indexes *********************************************
+
+First, let's drop our text index:
+db.products.dropIndex("description_text") => This syntax is a little bit different, but this is the only one.
+
+Let's create a new index for both "title" and "description":
+db.products.createIndex({title: "text", description: "text"})
+
+Now there is still will only be one text index, but it will contain the keywords of both the "title" and the "description" field.
+
+Let's insert a new product:
+db.products.insertOne({title: "A Ship", description: "Floats perfectly!"})
+
+Let's find a ship product in our products:
+db.products.find({$text: {$search: "ship"}}).pretty()
+
+* Using Text Indexes To Exclude Words:
+Let's find a product with a keyword "awesome" and does not have the keyword "t-shirt":
+db.products.find({$text: {$search: "awesome -t-shirt"}})
+
+And if we remove the "-t-shirt" form our query, we are gonna get two products.
+
+********************************************* Setting the Default Language & Using Weights *********************************************
+
+We are gonna see more interesting things when adding a text index.
+
+So let's drop our index for "products" collection:
+db.products.dropIndex("title_text_description_text")
+
+Let's create a new text index for and merge the "title" and "description" and we are gonna add a new helpul config:
+db.products.createIndex({title: "text", description: "text"}, {default_language: "english", weights: {title: 1, description: 10}})
+
+As we see we can specify a default language for our index, we saw before that the English language was the default, so if we want it as a 
+defualt language, then we can leave that config.
+Setting the default language helps MongoDB to define what stop words should be removed.
+
+Another interesting config is "weights". It defines different weightings for the different fields we are merging together.
+In our case, we are merging "title" and "description", but let's make the "description" higher priority than "title" in search.
+The "weights" we specify is very important when MongoDB calculates the score.
+In our case as we made the index, the "description" worth 10 times as much as "title".
+
+HINT: we cannot add any language we want as a default language, there's a list of supported language.
+HINT: when we have a default language (not English), we should specify it when we search like that:
+      {$text: {$search: <search text>, $language: <default language specified>}}
+HINT: we can also search for text and make sure the case sensitivity like that:
+      {$text: {$search: <search text>, $caseSensitive: true}}
+HINT: the defulat behaviour of MongoDB is that there's no case sensitivity when search.
+
+Let's search for "red" in our collection and view the score in results:
+db.products.find({$text: {$search: "red"}}, {score: {$meta: "textScore"}}).pretty()
+
+We see that the score of the found product was ~ 6.7
+
+Now let's drop our index and make another one without "weights":
+db.products.createIndex({title: "text", description: "text"})
+
+We see that the score for our last index itself without "weights" is ~ 1.3, because the score is calculated differently.
+
+************************************************************* Building Indexes *************************************************************
+
+* There are two ways for adding indexes:
+- Foreground (Default in createIndex() method, and we didn't specify it)
+- Background
+
+1. Creating an index with Foreground:
+- During the creation, the collection will be locked and we can't edit it.
+- Faster
+
+2. Creating an idnex with Background:
+- During the creation, the collection will still be accessible.
+- Slower
+
+But when we have a collection used in prodcuction (live application), we can't lock it when we are adding index.
+
+Let's create a new database with new collection and let's insert 1 million document to it:
+we can do that by opening the terminal and going to the "getting started" directory path in this rpository,
+and then write in the console:
+mongo credit-rating.js
+
+Here we insert documents using JavaScript code.
+HINT: this will take a while according to system.
+
+Now we have the database "credit" with a collection "ratings".
+Let's create an index for our single collection for the "age" field:
+mongo
+use credit
+db.ratings.createIndex({age: 1})
+
+Look! The process didn't finish instantly.
+
+Let's find all people are older than 80 and explain it:
+db.ratings.explain("executionStats").find({age: {$gt: 80}}).pretty()
+
+We see that it used the index scan. Keep in mind the milliseconds took to execute.
+
+Let's drop the index and repeat the same query:
+db.ratings.dropIndex({age: 1})
+db.ratings.explain("executionStats").find({age: {$gt: 80}}).pretty()
+
+We see it used the collection scan, and the time took to execute is nearly two times the time took to execute the last query.
+But this is already something we know.
+Now we want to see that the index creation takes time.
+
+Now let's create a new index, and quickly after we hit the enter to create it, we are gonna try execute and query, and see what happens:
+db.ratings.createIndex({age: 1})
+db.ratings.findOne()
+
+Now we see that the findOne() method was not executed, because we was in the process of index creation and the collection was locked.
+This was the Foreground way of creating an index.
+
+Let's take a look at the Background way and repeat the same thing we did it few seconds ago:
+First, we want to drop the index:
+db.ratings.dropIndex({age: 1})
+db.ratings.createIndex({age: 1}, {background: true}) => (The default is false)
+db.ratings.findOne()
+
+Now we see that the findOne() method was executed while the index creation was not completed.
+This is the Background way of creating an index, and this is useful when we have a collection in production.
