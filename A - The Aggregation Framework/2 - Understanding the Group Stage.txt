@@ -1,0 +1,53 @@
+How does $group work?
+Groups input documents by the specified "_id" expression and for each distinct grouping, outputs a document.
+The "_id" field of each output document contains the unique group by value.
+The output documents can also contain computed fields that hold the values of some accumulator expression.
+
+The syntax of $group:
+{
+  $group:
+    {
+      _id: <expression>,
+      <field1>: { <accumulator1> : <expression1> },
+      ...
+    }
+ }
+
+The $group stage allows us to well group our data by a certainfield or by multiple fields.
+
+We have a collection called "persons" in our database "contactData", each document on it has a location document (embedded), and this
+location document has a property called "state".
+Let's say we want to group by this state here and we want to see the sum of persons living in that state, with the aggregate() method 
+and the aggregation framework:
+
+db.persons.aggregate([
+    { $match: { gender: "female" } },
+    { $group: { _id: { state: "$location.state" }, totalPersons: { $sum: 1 } } }
+])
+
+We see multiple results and each result has a unique state, and next to it in the same result, we had the "totalPersons" property
+that indicates the number of "females" living into this state.
+These results was not stored and nothing changed in our collection.
+
+To make sure, there are in our results a state called "georgia" and its "totalPersons" was 5, let's make sure by using find() method:
+db.persons.find({"location.state": "georgia", gender: "female"}).count()
+
+HINT: the first thing we specify in the $group stage is always the "_id", and "_id" defines which field we want to gruop.
+HINT: the using of "_id" in the aggregation framework is different and not like we have been using it.
+HINT: the "$" tells  MongoDB that we want to work on the document/s we found (matches our filter).
+HINT: our query will group our results by "state" field.
+HINT: the "totalPersons" we specified is just a new property we added it to contain the number of persons living on each state,
+      and it will not be inserted to any document, it will only appear in the results.
+HINT: the "totalPersons" we specified takes a document, and inside this document we specify the kind of aggregation function we want to use.
+HINT: we can learn more aggregation functions from the official docs of MongoDB.
+HINT: in our case, we used the $sum function, it indicates the value we want to add for every document that is grouped together,
+      so if we have three people from the same location state, sum would be incremented by 1 times 3.
+HINT: we might have multiple documents with the same state and group will only output one, so 3 documents with the same state will be merged
+      into one, because we are aggregating.
+
+Let's repeat our query but in descending order:
+db.persons.aggregate([
+    { $match: { gender: "female" } },
+    { $group: { _id: { state: "$location.state" }, totalPersons: { $sum: 1 } } },
+    { $sort: { totalPersons: -1 } }
+])
