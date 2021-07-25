@@ -1,0 +1,66 @@
+In our collection "persons" in the database "contactData", each document has an embedded document that represents the location of the
+person, and this location document includes the details of the location of the person and one of these details is coordinates which
+is stored as an object (embedded document), so we cannot deal with it and it should be an array of two decimals [<longitude>, <latitude>].
+
+Our job in this lesson is to convert the entire location object (embedded document) to a new object, but it will only include both "type"
+and "coordinates" array, so we can deal with it.
+
+So what we could do is we could basically turn the location into a geoJSON object where we have a type which will be a "Point",
+because we have two coordinates and then we have coordinates but that should then be an array of two numbers instead of an object
+of "latitude" and "longitude" which also are strings and not numbers.
+
+Let's start and transform the location object into a geoJSON object:
+
+db.persons.aggregate([
+    { $project: { _id: 0, name: 1, email: 1, location: { type: "Point", coordinates: [
+        {
+            $convert: {
+                input: "$location.coordinates.longitude",
+                to: "double",
+                onError: 0.0,
+                onNull: 0.0
+            }
+        },
+        {
+            $convert: {
+                input: "$location.coordinates.latitude",
+                to: "double",
+                onError: 0.0,
+                onNull: 0.0
+            }
+        }
+    ] } } },
+    {
+      $project: {
+        _id: 0,
+        gender: 1,
+        email: 1,
+        location: 1,
+        fullName: {
+          $concat: [
+            { $toUpper: { $substrCP: ["$name.first", 0, 1] } },
+            {
+              $substrCP: [
+                "$name.first",
+                1,
+                { $subtract: [{ $strLenCP: "$name.first" }, 1] }
+              ]
+            },
+            " ",
+            { $toUpper: { $substrCP: ["$name.last", 0, 1] } },
+            {
+              $substrCP: [
+                "$name.last",
+                1,
+                { $subtract: [{ $strLenCP: "$name.last" }, 1] }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]).pretty();
+
+HINT: we added an extra project stage to make it more clear and the first project stage will be an input for the second one.
+HINT: we used $convert function to convert the longitude and latitude which are strings to double values.
+HINT: we specified "onError" and "onNull" to set the value of both coordinates when their values are null or when an error happen. 
