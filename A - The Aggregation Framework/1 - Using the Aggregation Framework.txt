@@ -1,0 +1,17 @@
+Let's use the Aggregation Framework!!
+
+We use it in a very simple way, instead of using find() method or findOne(), we use the aggregate() method.
+The aggregate() method takes an array, because we define a series of steps that should be run on our data.
+First step, we receive the entire data, and second step do something with the data returned by the first step and so on.
+
+Now one important piece of information, aggregate() method does not go ahead, fetch all the data from the database, and then give it to
+us and then do something on it.
+Of course the first step runs on the database and can take advantage of indexes, so if we filter in the first step or we sort there, 
+we can take advantage of our indexes, so we don't have to fetch all the documents just because we're using aggregate() method.
+
+Aggregate() method as find() method executes on the MongoDB server, and therefore can take advantages of things like indexes and it will.
+
+Let's use the aggregate() method and query for females:
+db.persons.aggregate([{$match: {gender: "female"}}]).pretty()
+
+This $match operator used to filter our search, and we can filter documents exactly like what we have been doing with find() method.
