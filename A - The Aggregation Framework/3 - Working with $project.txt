@@ -1,0 +1,71 @@
+In this lesson we are gonna work with $project stage.
+It helps us in projection as we have been doing in the course using find() and findOne() methods, but the $project stage gives us
+more functionality and flexibility.
+So $project works in the same way as the projection works in the find() method.
+
+So let"s project our data using $project stage.
+We want to have only "gender", "name", "location", and "email", but the "name" field should be displayed in a different way:
+
+db.persons.aggregate([{
+    $project: { _id: 0, gender: 1, fullName: { $concat: ["$name.first", " ", "$name.last"] } }
+}]).pretty()
+
+HINT: we included "fullName" which is not exist but it will merge the first and last name on it.
+HINT: to concatenate string we use the $concat stage.
+
+Let"s repeat our projection and let the first and last name start with upper-case :
+
+db.persons.aggregate([{
+    $project: { _id: 0,
+                gender: 1,
+                fullName: { 
+                    $concat: [
+                        { $toUpper: "$name.first" },
+                        " ",
+                        { $toUpper: "$name.last" }
+                    ] 
+                } 
+            }
+}]).pretty()
+
+HINT: $toUpper stage turn strings into upper-case.
+
+We see that everything is upper-case, but we want only the first character of first and last name to be upper-case:
+
+db.persons.aggregate([
+    {
+      $project: {
+        _id: 0,
+        gender: 1,
+        fullName: {
+          $concat: [
+            { $toUpper: { $substrCP: ["$name.first", 0, 1] } },
+            {
+              $substrCP: [
+                "$name.first",
+                1,
+                { $subtract: [{ $strLenCP: "$name.first" }, 1] }
+              ]
+            },
+            " ",
+            { $toUpper: { $substrCP: ["$name.last", 0, 1] } },
+            {
+              $substrCP: [
+                "$name.last",
+                1,
+                { $subtract: [{ $strLenCP: "$name.last" }, 1] }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]).pretty();
+
+HINT: $substrCP is a function that returns a sub of a string.
+      First argument is the string,
+      second is the starting index,
+      and third is how many characters will be included.
+
+HINT: $subtract performs subtractions.
+HINT: $strLenCP returns the length of the string.
