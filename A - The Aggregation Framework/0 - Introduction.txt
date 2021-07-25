@@ -1,0 +1,21 @@
+Sometimes we need a bit more power for retrieving our data.
+
+Now we are already extensively use the find() and findOne() methods and these are our default methods for retrieving data indeed,
+but sometimes we want to do more complex transformations to our data.
+
+Now of course we talked about the fact that we want to store the data in our database in the format we need it in in our application,
+but this is not always possible.
+
+We might have an online shop where the sellers can also generate detailed reports on their sales data, now it will probably be hard to 
+store the data in exactly that format, because these reports might be customizable by the sellers or let's say we have a customer facing 
+application on which our data scientists.
+
+In our company also work, of course we will gear our data towards our customers and we will store it in a way that allows our customers to 
+quickly interact with our application, and our data scientists might not be that important for us from a data modeling perspective.
+
+Therefore, hence we also need more complex data transformation capabilities.
+
+And in this section, we will have a look at the Aggregation Framework which gives us just that.
+
+We'll learn what exactly the Aggregation Framework is in MongoDB and how we can use it to retrieve data in exactly the format we need 
+it in our application.
