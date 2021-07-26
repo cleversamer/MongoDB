@@ -1,0 +1,35 @@
+Let's say we want to find the top 10 oldest persons, so the lowest birth date, so to say and thereafter we want to find the next 10,
+so like if we had pagination in place.
+
+1. Let's find the oldest person in our collection:
+db.persons.aggregate([
+    { $project: { _id: 0, name: { $concat: ["$name.first", " ", "$name.last"] }, birthdate: { $toDate: "$dob.date" } } },
+    { $sort: { birthdate: 1 } }
+]).pretty()
+
+2. Let's see the top 10 oldest persons in our collection:
+db.persons.aggregate([
+    { $project: { _id: 0, name: { $concat: ["$name.first", " ", "$name.last"] }, birthdate: { $toDate: "$dob.date" } } },
+    { $sort: { birthdate: 1 } },
+    { $limit: 10 }
+]).pretty()
+
+3. Let's see the next 10 oldest persons in our collection:
+db.persons.aggregate([
+    { $project: { _id: 0, name: { $concat: ["$name.first", " ", "$name.last"] }, birthdate: { $toDate: "$dob.date" } } },
+    { $sort: { birthdate: 1 } },
+    { $skip: 10 },
+    { $limit: 10 }
+])
+
+HINT: we cannot use the $skip operator after the $limit operator (it is a logical part of the process).
+HINT: we also cannot use the $sort after $skip or after $limit operators. In that case we will sort the first 10 persons in our
+      collection and we will get a totally different set of persons.
+
+4. Let's find the top 10 oldest males in our collection:
+db.persons.aggregate([
+    { $match: { gender: "male" } },
+    { $project: { _id: 0, gender: 1, name: { $concat: ["$name.first", " ", "$name.last"] }, birthdate: { $toDate: "$dob.date" } } },
+    { $sort: { birthdate: 1 } },
+    { $limit: 10 }
+]).pretty()
