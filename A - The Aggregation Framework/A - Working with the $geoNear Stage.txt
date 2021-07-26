@@ -1,0 +1,34 @@
+Now we have data stored in a new collection, let's use that new collection and let's create an index, a geo index in there 
+so that we can actually use the $geoNear stage which also exists in the Aggregation Framework.
+
+Let's create an index for the location field:
+db.transformedPersons.createIndex({location: "2dsphere"})
+
+So now with that index created, we can use transform persons for geolocation queries and also for the geolocation or the 
+geospatial aggregation pipeline step.
+
+We are gonna run the pipeline we are gonna build now against transformed persons, and we are gonna use a special stage which
+is built for working with GeoData, the $geoNear stage.
+
+Let's use the $geoNear stage and find near persons to a specific point:
+db.transformedPersons.aggregate([
+    {
+        $geoNear: {
+            near: { type: "Point", coordinates: [-18.4, -42.8] },
+            maxDistance: 1000000,
+            query: { age: { $gt: 30 } },
+            distanceField: "distance"
+        }
+    },
+    { $limit: 10 }
+]).pretty()
+
+HINT: if we want to use $geoNear, we must pass it as a first element, because it needs to use that index and the first
+      pipeline element is the only element with direct access to the collection, and other pipeline stages just get the
+      output of the previous pipeline stages.
+
+$geoNear took a bunch of parameters:
+1. near          => indicates to our location.
+2. maxDistance   => indicates to the max distance between our location and persons in results (in meters).
+3. query         => filters our results (Optional).
+4. distanceField => indicates to the name of the new field where MongoDB will store the distance between our location and the person.
