@@ -1,0 +1,108 @@
+We have a collection "friends" in our database "contactData" and we want to group them by "age" field, and we also want to combine
+the hobby arrays, so we are gonna be able to see the hobbies of each "age".
+
+mongo
+use contactData
+
+******************************************* Pushing Elements into Newly Created Arrays ******************************************
+
+db.friends.aggregate([
+    { $unwind: "$hobbies" },
+    { $group: { _id: { age: "$age" }, allHobbies: { $addToSet: "$hobbies" } } }
+]).pretty()
+
+What does $unwind stage do?
+$unwind stage holds an array field and for each document it makes N copies of it and each copy has one element of the array as a value
+for the original array field.
+
+For example:
+If we have the follwing document in our collection:
+{
+    name: "Person",
+    hobbies: [
+        "Cooking",
+        "Sports"
+    ]
+}
+
+$unwind will translate this document to 2 documents as follows:
+1. { name: "Person", hobbies: "Cooking" }
+2. { name: "person", hobbies: "Sports" }
+
+And that helped us to when we pushed the hobbies of each age, we couldn't push every single element, we can only push arrays, we would have
+an array of nested arrays, but we actually want one array with multiple hobbies as strings and not an array of hobbies arrays.
+
+We used $addToSet instead of $push to avoid duplicate values.
+
+
+************************************************** Using Projection with Arrays *************************************************
+
+Let's project our documents in the "friends" collection and interest in the "examScores" field (which is an array):
+db.friends.aggregate([
+    { $project: { _id: 0, examScore: { $slice: ["$examScores", -2] } } } 
+]).pretty()
+
+So the "examScore" is a slice of the array "examScores":
+1. To select the first element we pass { $slice: ["$examScores", 1] }
+2. To select the second we pass { $slice: ["$examScores", 1, 1] }
+3. To select the last element we pass { $slice: ["$examScores", -1] }
+4. To select the last 2 element we pass { $slice: ["$examScores", -2] }
+
+* What if we interested of the number of exam scores of each document?
+We use the $size to get the length of the array "examScores" as follows:
+
+db.friends.aggregate([
+    { $project: { _id: 0, numScores: { $size: "$examScores" } } }
+])
+
+
+* What if we interested only in the scores higher than 60?
+db.friends.aggregate([
+    { $project: { _id: 0, scores: { $filter: { input: "$examScores", as: "sc", cond: { $gt: ["$$sc.score", 60] } } } } }
+])
+
+We used a new stage ($filter) and that helped us when we filtered the examScores array to only scores higher than 60.
+
+$filter accepts three fields:
+1. intput => it should be an array
+2. as     => indicates to the array
+3. cond   => the condition that gives us what we are interested in
+
+HINT: we used "$$" before "sc" and the additional "$" means that we want each element in the array.
+
+
+******************************************* Applying Multiple Operations to our Array *******************************************
+
+1. Let's transform our friend objects and output only the highest exam score for each person:
+db.friends.aggregate([
+    { $unwind: "$examScores" },
+    { $project: { _id: 0, name: 1, age: 1, score: "$examScores.score" } },
+    { $sort: { score: -1 } }
+])
+
+2. Let's add a group stage:
+db.friends.aggregate([
+    { $unwind: "$examScores" },
+    { $project: { _id: 1, name: 1, age: 1, score: "$examScores.score" } },
+    { $sort: { score: -1 } },
+    { $group: { _id: "$_id" } }
+])
+
+3. Let's add a new field called "maxScore" in the group stage:
+db.friends.aggregate([
+    { $unwind: "$examScores" },
+    { $project: { _id: 1, name: 1, age: 1, score: "$examScores.score" } },
+    { $sort: { score: -1 } },
+    { $group: { _id: "$_id", maxScore: { $max: "$score" } } }
+])
+
+4. Let's add the name property to our group stage and then sort in descending order:
+db.friends.aggregate([
+    { $unwind: "$examScores" },
+    { $project: { _id: 1, name: 1, age: 1, score: "$examScores.score" } },
+    { $sort: { score: -1 } },
+    { $group: { _id: "$_id", name: { $first: "$name" }, maxScore: { $max: "$score" } } },
+    { $sort: { maxScore: -1 } }
+]).pretty()
+
+HINT: $name operator simply tells MongoDB to use the first value it encounters.
