@@ -4,7 +4,7 @@
 conn = new Mongo();
 db = conn.getDB("credit");
 
-for (let i = 1; i <= 1000000; i++) {
+for (let i = 92303; i <= 1000000; i++) {
     db.ratings.insertOne({
         "person_id": i,
         "score": Math.random() * 100,

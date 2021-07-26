@@ -24,9 +24,5 @@ db.dropDatabase()
 use <database name>
 db.<collection name>.drop()
 
-6. To import a group of data stored inside a JSON file, we use the following command line:
+6. To import a group of data stored inside a JSON file, we use the following command lines:
 mongoimport <file-name.json> -d <database name> -c <collection name> --jsonArray --drop
-
---jsonArray => tells the shell that we want to import an array of JSON objects/documents.
---drop      => tells the shell that if there is alreay a collection with this name, delete it,
-               and make a new one, and then insert the JSON documents. So it is optional.
