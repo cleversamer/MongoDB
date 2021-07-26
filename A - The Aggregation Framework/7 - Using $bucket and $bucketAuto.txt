@@ -1,0 +1,54 @@
+In this lesson, we are gonna work with our huge collection "persons" in our database "contactData".
+
+* What does $bucket do?
+The $bucket stage allows us to output our data in buckets for which we can calculate certain summary statistics.
+Buckets takes a "groupBy" parameter where we define by which field do we want to put our data into buckets.
+
+Let's put "age" field for each person into buckets:
+mongo
+use contactData
+db.persons.aggregate([
+    { $bucket: {
+        groupBy: "$dob.age",
+        boundaries: [0, 18, 30, 50, 80, 120],
+        output: {
+            numPersons: { $sum: 1 },
+            averageAge: { $avg: "$dob.age" }
+        }
+    } }
+]).pretty()
+
+We see in the results that there are 3 categories of ages:
+1. 18 to 30
+2. 30 to 50
+3. 50 to 80
+And that means there are no persons younger than 18 or older than 80.
+That means we can optimize our bucket stage and remove 0 and 120 from boundaries.
+
+HINT: boundaries conatins some categories of ages we are interested in.
+
+
+* What does $bucketAuto do?
+As the name suggests, it does the bucketing algorithm for us.
+And when we use $bucketAuto, we have to define the "groupBy" of course,
+and "buckets" that indicates to the number of buckets we want,
+and "output" as we saw in $bucket stage.
+
+HINT: in the $bucketAuto stage, MongoDB will look at our data and see where it should draw the boundaries.
+
+Let's repeat our last bucket stage:
+db.persons.aggregate([
+    { $bucketAuto: {
+        groupBy: "$dob.age",
+        buckets: 3,
+        output: {
+            numPersons: { $sum: 1 },
+            averageAge: { $avg: "$dob.age" }
+        }
+    } }
+])
+
+We see that MongoDB choosed three categories as we want:
+1. 21 to 39
+2. 39 to 57
+3. 57 to 74
