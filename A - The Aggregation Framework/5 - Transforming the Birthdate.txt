@@ -72,3 +72,71 @@ db.persons.aggregate([
 When we converted the coordinates from string to double, se specified "onNull" and "onError".
 But when we converted the "dob.date" from string to date, we didn't use any of them, and we converted it in a different syntax
 using onle the $toDate operator, and that works better when we don't want to specify both "onError" and "onNull".
+
+************************************************** Using $isoWeekYear Operator **************************************************
+
+Let's repeat our last projection and group our data by birthdate:
+
+db.persons.aggregate([
+    { $project: { 
+        _id: 0,
+        name: 1,
+        email: 1,
+        birthdate: { $toDate: "$dob.date" },
+        age: "$dob.age",
+        location: { 
+            type: "Point",
+            coordinates: [
+                {
+                    $convert: {
+                        input: "$location.coordinates.longitude",
+                        to: "double",
+                        onError: 0.0,
+                        onNull: 0.0
+                    }
+                },
+                {
+                    $convert: {
+                        input: "$location.coordinates.latitude",
+                        to: "double",
+                        onError: 0.0,
+                        onNull: 0.0
+                    }
+                }
+            ] 
+        } 
+    }
+    },
+    {
+        $project: {
+            _id: 0,
+            gender: 1,
+            email: 1,
+            location: 1,
+            birthdate: 1,
+            age: 1,
+            fullName: {
+                $concat: [
+                    { $substrCP: ["$name.first", 0, 1] },
+                    {
+                        $substrCP: [
+                            "$name.first",
+                            1,
+                            { $subtract: [{ $strLenCP: "$name.first" }, 1] }
+                        ]
+                    },
+                    " ",
+                    { $substrCP: ["$name.last", 0, 1] },
+                    {
+                        $substrCP: [
+                            "$name.last",
+                            1,
+                            { $subtract: [{ $strLenCP: "$name.last" }, 1] }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    { $group: { _id: { birthYear: { $isoWeekYear: "$birthdate" } }, numPersons: { $sum: 1 } } }
+]).pretty()
