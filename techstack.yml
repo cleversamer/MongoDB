@@ -2,7 +2,7 @@ repo_name: cleversamerr/MongoDB
 report_id: 98e874b9ac8baca80e9268f34c52d816
 version: 0.1
 repo_type: Public
-timestamp: '2023-12-24T12:44:19+00:00'
+timestamp: '2024-01-05T08:16:17+00:00'
 requested_by: cleversamerr
 provider: github
 branch: main
@@ -17,6 +17,7 @@ tools:
   category: Languages & Frameworks
   sub_category: Languages
   image_url: https://img.stackshare.io/service/1209/javascript.jpeg
+  detection_source_url: https://github.com/cleversamerr/MongoDB
   detection_source: Repo Metadata
 - name: Git
   description: Fast, scalable, distributed revision control system
@@ -26,4 +27,5 @@ tools:
   category: Build, Test, Deploy
   sub_category: Version Control System
   image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/cleversamerr/MongoDB
   detection_source: Repo Metadata
