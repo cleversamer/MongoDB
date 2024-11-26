@@ -1,0 +1,31 @@
+repo_name: cleversamerr/MongoDB
+report_id: 98e874b9ac8baca80e9268f34c52d816
+version: 0.1
+repo_type: Public
+timestamp: '2024-01-05T08:16:17+00:00'
+requested_by: cleversamerr
+provider: github
+branch: main
+detected_tools_count: 2
+tools:
+- name: JavaScript
+  description: Lightweight, interpreted, object-oriented language with first-class
+    functions
+  website_url: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1209/javascript.jpeg
+  detection_source_url: https://github.com/cleversamerr/MongoDB
+  detection_source: Repo Metadata
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/cleversamerr/MongoDB
+  detection_source: Repo Metadata
